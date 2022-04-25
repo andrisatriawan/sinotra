@@ -63,13 +63,8 @@ class Users extends CI_Controller
     echo $result;
   }
 
-  public function save()
+  function cekAkun($username, $email)
   {
-    $tipe = $this->input->post('tipe');
-    $id_user = $this->input->post('id_user');
-    $username = $this->input->post('username');
-    $email = $this->input->post('email');
-
     $cek_username = $this->User_model->getUserByUsername($username);
     $cek_email = $this->User_model->getUserByEmail($email);
 
@@ -82,8 +77,6 @@ class Users extends CI_Controller
           'status' => 'error'
         ]
       ];
-      echo json_encode($result);
-      exit;
     } else if ($cek_email['status'] == 200) {
       $result = [
         'status' => 400,
@@ -93,13 +86,30 @@ class Users extends CI_Controller
           'status' => 'error'
         ]
       ];
-      echo json_encode($result);
-      exit;
+    } else {
+      $result = ['status' => 200];
     }
+
+    return $result;
+  }
+
+  public function save()
+  {
+    $tipe = $this->input->post('tipe');
+    $id_user = $this->input->post('id_user');
+    $username = $this->input->post('username');
+    $email = $this->input->post('email');
 
     if ($tipe == 1) {
       $level = '4';
       if ($id_user == '') {
+        $cekAkun = $this->cekAkun($username, $email);
+        if ($cekAkun['status'] != 200) {
+          echo json_encode($cekAkun);
+
+          exit;
+        }
+
         $simpan_user = $this->User_model->saveUser($this->input->post(), $level);
         if ($simpan_user['status'] == 200) {
           $result = $this->Perusahaan_model->savePerusahaan($this->input->post(), $simpan_user['timestamp']);

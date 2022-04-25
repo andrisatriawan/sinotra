@@ -141,85 +141,6 @@
 
   tampil()
 
-  getProv(function(data) {
-    $('#prov').html(data);
-  })
-
-  $('#prov').change(function() {
-    getKab(function(data) {
-      $('#kab').html(data)
-    }, $(this).val())
-    getKec(function(data) {
-      $('#kec').html(data)
-    }, $(this).val())
-    getKel(function(data) {
-      $('#kel').html(data)
-    }, $(this).val())
-  })
-
-  $('#kab').change(function() {
-    getKec(function(data) {
-      $('#kec').html(data)
-    }, $(this).val())
-    getKel(function(data) {
-      $('#kel').html(data)
-    }, $(this).val())
-  })
-
-  $('#kec').change(function() {
-    getKel(function(data) {
-      $('#kel').html(data)
-    }, $(this).val())
-  })
-
-  function getProv(handleData) {
-    var base_url = "<?= base_url('index.php/') ?>"
-    $.ajax({
-      type: "POST",
-      url: `${ base_url }daerah/prov`,
-      success: function(data) {
-        handleData(data);
-      }
-    })
-  }
-
-  function getKab(handleData, id) {
-    var base_url = "<?= base_url('index.php/') ?>"
-    $.ajax({
-      type: "POST",
-      url: `${ base_url }daerah/kab/${ id }`,
-      success: function(data) {
-        handleData(data);
-      }
-    })
-  }
-
-  function getKec(handleData, id) {
-    var base_url = "<?= base_url('index.php/') ?>"
-
-    $.ajax({
-      type: "POST",
-      url: `${ base_url }daerah/kec/${ id }`,
-      success: function(data) {
-        handleData(data);
-      }
-    })
-  }
-
-  function getKel(handleData, id) {
-    var base_url = "<?= base_url('index.php/') ?>"
-
-    $.ajax({
-      type: "POST",
-      url: `${ base_url }daerah/kel/${ id }`,
-      success: function(data) {
-        if (data != null) {
-          handleData(data)
-        }
-      }
-    })
-  }
-
   $('.select2').select2({
     dropdownParent: $('#modal-akun')
   })
@@ -289,11 +210,32 @@
         $("#no_telp").val(data.data.no_telp)
         $("#email").val(data.data.email)
         $("#alamat").html(data.data.alamat)
-        $("#prov").val(data.data.prov).change()
-        getKab(function(value) {
-          $('#kab').html(value)
-          $('#kab').val(data.data.kab).change()
-        }, data.data.prov)
+        $('#prov').select2().val(data.data.prov).trigger('change')
+        // console.log($('#prov').val())
+        // $("#prov").val(data.data.prov).change()
+        getKab(function(val) {
+          $('#kab').html(val);
+          $("#kab").val(data.data.kab)
+          $(`#kab[value=${data.data.kab}]`).prop('selected', true)
+          // $('#kab').select2().val(data.data.kab).trigger('change')
+          // $("#kab").val(data.data.kab).change();
+          getKec(function(val) {
+            $('#kec').html(val);
+            // $('#kec').select2().val(data.data.kec).trigger('change')
+            $("#kec").val(data.data.kec)
+            $(`#kec[value=${data.data.kec}]`).prop('selected', true)
+
+            // $("#kec").val(data.data.kec).change();
+            getKel(function(val) {
+              $("#kel").html(val);
+              // $('#kel').select2().val(data.data.kel).trigger('change')
+              $("#kel").val(data.data.kel)
+              $(`#kel[value=${data.data.kel}]`).prop('selected', true)
+
+              // $("#kel").val(data.data.kel).change();
+            }, $("#kec").val())
+          }, $("#kab").val())
+        }, $('#prov').val())
 
         $("#username").val(data.data.username)
         $("#username").attr('readonly', true)
@@ -344,4 +286,86 @@
         }, false)
       })
   })();
+
+  getProv(function(data) {
+    $('#prov').html(data);
+  })
+
+  $('#prov').change(function(e) {
+    e.preventDefault();
+    getKab(function(data) {
+      $('#kab').html(data)
+    }, $(this).val())
+    getKec(function(data) {
+      $('#kec').html(data)
+    }, $(this).val())
+    getKel(function(data) {
+      $('#kel').html(data)
+    }, $(this).val())
+  })
+
+  $('#kab').change(function(e) {
+    e.preventDefault();
+    getKec(function(data) {
+      $('#kec').html(data)
+    }, $(this).val())
+    getKel(function(data) {
+      $('#kel').html(data)
+    }, $(this).val())
+  })
+
+  $('#kec').change(function(e) {
+    e.preventDefault();
+    getKel(function(data) {
+      $('#kel').html(data)
+    }, $(this).val())
+  })
+
+  function getProv(handleData) {
+    var base_url = "<?= base_url('index.php/') ?>"
+    $.ajax({
+      type: "POST",
+      url: `${ base_url }daerah/prov`,
+      success: function(data) {
+        handleData(data);
+      }
+    })
+  }
+
+  function getKab(handleData, id) {
+    var base_url = "<?= base_url('index.php/') ?>"
+    $.ajax({
+      type: "POST",
+      url: `${ base_url }daerah/kab/${ id }`,
+      success: function(data) {
+        handleData(data);
+      }
+    })
+  }
+
+  function getKec(handleData, id) {
+    var base_url = "<?= base_url('index.php/') ?>"
+
+    $.ajax({
+      type: "POST",
+      url: `${ base_url }daerah/kec/${ id }`,
+      success: function(data) {
+        handleData(data);
+      }
+    })
+  }
+
+  function getKel(handleData, id) {
+    var base_url = "<?= base_url('index.php/') ?>"
+
+    $.ajax({
+      type: "POST",
+      url: `${ base_url }daerah/kel/${ id }`,
+      success: function(data) {
+        if (data != null) {
+          handleData(data)
+        }
+      }
+    })
+  }
 </script>
