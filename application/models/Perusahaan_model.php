@@ -74,4 +74,46 @@ class Perusahaan_model extends CI_Model
     $result = $this->db->get_where('tb_users', ['date_created' => $timestamp]);
     return $result->row_array();
   }
+
+  public function updatePerusahaan($data, $timestamp)
+  {
+    $id_user = $this->session->userdata('id_user');
+    $id = $data['id_user'];
+    $data = [
+      'nama' => $data['nama'],
+      'jabatan' => 'Admin Perusahaan',
+      'alamat' => $data['alamat'],
+      'prov' => $data['prov'],
+      'kab' => $data['kab'],
+      'kec' => $data['kec'],
+      'kel' => $data['kel'],
+      'no_telp' => $data['no_telp'],
+      'foto' => 'default.jpg',
+      'date_updated' => $timestamp,
+      'updated_by' => $id_user,
+    ];
+    // $this->db->where('id_user', $data['id_user']);
+    $update = $this->db->update('tb_perusahaan', $data, ['id_user' => $id]);
+    if ($update) {
+      $result = [
+        'status' => 200,
+        'data' => [
+          'header' => 'Berhasil...',
+          'body' => 'Berhasil disimpan',
+          'status' => 'success'
+        ]
+      ];
+    } else {
+      $result = [
+        'status' => 400,
+        'data' => [
+          'header' => 'Oopss...',
+          'body' => 'Profile gagal disimpan',
+          'status' => 'error'
+        ]
+      ];
+    }
+
+    return $result;
+  }
 }

@@ -9,7 +9,11 @@ class User_model extends CI_Model
     // $result = $this->db->query($query);
 
     // $result = $this->db->get();
-    $result = $this->db->get_where('tb_profile', ['id_user' => $id]);
+    $this->db->select('*');
+    $this->db->from('tb_users');
+    $this->db->join('tb_profile', 'tb_users.id_user=tb_profile.id_user');
+    $this->db->where('tb_users.id_user', $id);
+    $result = $this->db->get();
 
     return $result->row_array();
   }
@@ -75,5 +79,143 @@ class User_model extends CI_Model
     }
 
     return $result;
+  }
+
+  public function updateUser($data, $level)
+  {
+    $timestamp = date('Y-m-d H:i:s');
+    $id_user = $this->session->userdata('id_user');
+    $id = $data['id_user'];
+    if ($data['password'] == '') {
+      $user = $this->getOnlyUser($id);
+      $password = $user['password'];
+      $pass_view = $user['pass_view'];
+    } else {
+      $password = md5($data['password']);
+      $pass_view = $data['password'];
+    }
+
+    $data = [
+      'username' => $data['username'],
+      'email' => $data['email'],
+      'password' => $password,
+      'pass_view' => $pass_view,
+      'level' => $level,
+      'date_updated' => $timestamp,
+      'updated_by' => $id_user
+    ];
+    // $this->db->where('id_user', $data['id_user']);
+    $update = $this->db->update('tb_users', $data, ['id_user' => $id]);
+    if ($update) {
+      $result = [
+        'status' => 200,
+        'timestamp' => $timestamp
+      ];
+    } else {
+      $result = [
+        'status' => 400
+      ];
+    }
+
+    return $result;
+  }
+
+  function getOnlyUser($id)
+  {
+    $result = $this->db->get_where('tb_users', ['id_user' => $id]);
+
+    return $result->row_array();
+  }
+
+  public function getAllAdmin()
+  {
+    $this->db->select('*');
+    $this->db->from('tb_users');
+    $this->db->join('tb_profile', 'tb_users.id_user=tb_profile.id_user');
+    $result = $this->db->get();
+
+    return $result->result_array();
+  }
+
+  public function saveProfile($data, $timestamp)
+  {
+    $user = $this->getUserByTimestamp($timestamp);
+    $id_user = $this->session->userdata('id_user');
+
+    $data = [
+      'id_user' => $user['id_user'],
+      'nama' => $data['nama'],
+      'jabatan' => $data['jabatan'],
+      'foto' => 'default.jpg',
+      'date_created' => $timestamp,
+      'date_updated' => $timestamp,
+      'created_by' => $id_user,
+      'updated_by' => $id_user,
+    ];
+
+    $simpan = $this->db->insert('tb_profile', $data);
+    if ($simpan) {
+      $result = [
+        'status' => 200,
+        'data' => [
+          'header' => 'Berhasil...',
+          'body' => 'Berhasil disimpan',
+          'status' => 'success'
+        ]
+      ];
+    } else {
+      $result = [
+        'status' => 400,
+        'data' => [
+          'header' => 'Oopss...',
+          'body' => 'Profile gagal disimpan',
+          'status' => 'error'
+        ]
+      ];
+    }
+
+    return $result;
+  }
+
+  public function updateProfile($data, $timestamp)
+  {
+    $id_user = $this->session->userdata('id_user');
+    $id = $data['id_user'];
+    $data = [
+      'nama' => $data['nama'],
+      'jabatan' => $data['jabatan'],
+      'foto' => 'default.jpg',
+      'date_updated' => $timestamp,
+      'updated_by' => $id_user,
+    ];
+    // $this->db->where('id_user', $data['id_user']);
+    $update = $this->db->update('tb_profile', $data, ['id_user' => $id]);
+    if ($update) {
+      $result = [
+        'status' => 200,
+        'data' => [
+          'header' => 'Berhasil...',
+          'body' => 'Berhasil disimpan',
+          'status' => 'success'
+        ]
+      ];
+    } else {
+      $result = [
+        'status' => 400,
+        'data' => [
+          'header' => 'Oopss...',
+          'body' => 'Profile gagal disimpan',
+          'status' => 'error'
+        ]
+      ];
+    }
+
+    return $result;
+  }
+
+  public function getUserByTimestamp($timestamp)
+  {
+    $result = $this->db->get_where('tb_users', ['date_created' => $timestamp]);
+    return $result->row_array();
   }
 }

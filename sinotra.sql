@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 25, 2022 at 02:35 AM
+-- Generation Time: Apr 26, 2022 at 04:45 AM
 -- Server version: 10.4.8-MariaDB
 -- PHP Version: 7.3.11
 
@@ -45077,7 +45077,9 @@ CREATE TABLE `tb_access_menu` (
 INSERT INTO `tb_access_menu` (`id`, `id_menu`, `id_submenu`, `level`) VALUES
 (1, 1, 0, '0'),
 (2, 0, 1, '0'),
-(3, 0, 2, '0');
+(3, 0, 2, '0'),
+(4, 2, 0, '0'),
+(5, 0, 3, '0');
 
 -- --------------------------------------------------------
 
@@ -45098,7 +45100,8 @@ CREATE TABLE `tb_menu` (
 --
 
 INSERT INTO `tb_menu` (`id_menu`, `menu`, `link`, `icon`, `is_submenu`) VALUES
-(1, 'Users', 'user-sub', 'users-alt', '1');
+(1, 'Users', 'user-sub', 'users-alt', '1'),
+(2, 'Tracking', 'tracking-nav', 'location-arrow', '1');
 
 -- --------------------------------------------------------
 
@@ -45130,7 +45133,7 @@ CREATE TABLE `tb_perusahaan` (
 
 INSERT INTO `tb_perusahaan` (`id_perusahaan`, `id_user`, `nama`, `jabatan`, `alamat`, `prov`, `kab`, `kec`, `kel`, `no_telp`, `foto`, `date_created`, `date_updated`, `created_by`, `updated_by`) VALUES
 (1, 1, 'PT. Indah Sejati', 'Admin Perusahaan', 'Jl. Medan', 0, 1207, 120712, 120712, '082167681996', 'default.jpg', '2022-04-04 00:00:00', '2022-04-24 00:00:00', 1, 1),
-(2, 2, 'PT Jaya Peerkasa', 'Admin Perusahaan', 'Jl. SM. Raja No.98', 12, 1271, 127109, 1271091001, '082167546766', 'default.jpg', '2022-04-25 00:13:56', '2022-04-25 00:13:56', 1, 1),
+(2, 2, 'PT Jaya Peerkasa', 'Admin Perusahaan', 'Jl. SM. Raja No.98', 12, 1271, 127109, 1271091001, '082167546766', 'default.jpg', '2022-04-25 00:13:56', '2022-04-25 17:33:51', 1, 1),
 (3, 3, 'PT. Indah Kencana', 'Admin Perusahaan', 'Medan', 12, 1271, 127109, 1271091001, '09808908', 'default.jpg', '2022-04-25 00:29:55', '2022-04-25 00:29:55', 1, 1);
 
 -- --------------------------------------------------------
@@ -45156,7 +45159,8 @@ CREATE TABLE `tb_profile` (
 --
 
 INSERT INTO `tb_profile` (`id_profile`, `id_user`, `nama`, `jabatan`, `foto`, `date_created`, `date_updated`, `created_by`, `updated_by`) VALUES
-(1, 1, 'Andri Satriawan', 'Superadmin', 'default.jpg', '2022-04-24 00:00:00', '2022-04-24 00:00:00', 1, 1);
+(1, 1, 'Andri Satriawan', 'Superadmin', 'default.jpg', '2022-04-24 00:00:00', '2022-04-24 00:00:00', 1, 1),
+(2, 4, 'Test', 'Administrasi', 'default.jpg', '2022-04-25 18:40:33', '2022-04-25 19:00:54', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -45177,7 +45181,8 @@ CREATE TABLE `tb_submenu` (
 
 INSERT INTO `tb_submenu` (`id_submenu`, `id_menu`, `submenu`, `link`) VALUES
 (1, 1, 'Akun Perusahaan', 'users/perusahaan'),
-(2, 1, 'Admin', 'users/admin');
+(2, 1, 'Admin', 'users/admin'),
+(3, 2, 'Semua', 'tracking/all');
 
 -- --------------------------------------------------------
 
@@ -45204,8 +45209,9 @@ CREATE TABLE `tb_users` (
 
 INSERT INTO `tb_users` (`id_user`, `username`, `email`, `password`, `pass_view`, `level`, `date_created`, `date_updated`, `created_by`, `updated_by`) VALUES
 (1, 'superadmin', 'superadmin@balaik3medan.com', 'e10adc3949ba59abbe56e057f20f883e', '123456', '0', '2022-04-24 00:00:00', '2022-04-24 00:00:00', 1, 1),
-(2, 'jayaperkasa', 'jayaperkasa@gmail.com', 'e10adc3949ba59abbe56e057f20f883e', '123456', '4', '2022-04-25 00:13:56', '2022-04-25 00:13:56', 1, 1),
-(3, 'indahkencana', 'indahkencana@gmail.com', 'e10adc3949ba59abbe56e057f20f883e', '123456', '4', '2022-04-25 00:29:55', '2022-04-25 00:29:55', 1, 1);
+(2, 'jayaperkasa', 'jayaperkasa@gmail.com', 'e10adc3949ba59abbe56e057f20f883e', '123456', '4', '2022-04-25 00:13:56', '2022-04-25 17:33:51', 1, 1),
+(3, 'indahkencana', 'indahkencana@gmail.com', 'e10adc3949ba59abbe56e057f20f883e', '123456', '4', '2022-04-25 00:29:55', '2022-04-25 17:31:23', 1, 1),
+(4, 'admin_umum', 'test@gmail.com', 'e10adc3949ba59abbe56e057f20f883e', '123456', '1', '2022-04-25 18:40:33', '2022-04-25 19:00:54', 1, 1);
 
 --
 -- Indexes for dumped tables
@@ -45279,13 +45285,13 @@ ALTER TABLE `tb_users`
 -- AUTO_INCREMENT for table `tb_access_menu`
 --
 ALTER TABLE `tb_access_menu`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `tb_menu`
 --
 ALTER TABLE `tb_menu`
-  MODIFY `id_menu` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_menu` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `tb_perusahaan`
@@ -45297,19 +45303,19 @@ ALTER TABLE `tb_perusahaan`
 -- AUTO_INCREMENT for table `tb_profile`
 --
 ALTER TABLE `tb_profile`
-  MODIFY `id_profile` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_profile` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `tb_submenu`
 --
 ALTER TABLE `tb_submenu`
-  MODIFY `id_submenu` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_submenu` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `tb_users`
 --
 ALTER TABLE `tb_users`
-  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

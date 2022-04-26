@@ -192,7 +192,7 @@
     })
   }
 
-  function getUser(id) {
+  function getUser(handleData, id) {
     var url = "<?= base_url('index.php/users/getUser') ?>"
     var tipe = $("#tipe").val()
     $.ajax({
@@ -204,7 +204,23 @@
         tipe: tipe
       },
       success: function(data) {
-        console.log(data)
+        handleData(data)
+      }
+    })
+  }
+
+  var modal_akun = document.getElementById('modal-akun')
+  modal_akun.addEventListener('show.bs.modal', function(event) {
+    var button = event.relatedTarget
+    var id = button.getAttribute('data-bs-id')
+    $('#btn-simpan').removeAttr('disabled');
+    $(".was-validated").removeClass('was-validated')
+    if (id != null) {
+      $('#modal-akunLabel').html('Ubah Akun')
+      $('#password-text').html('Kosongkan jika tidak ingin mengubah password!')
+      $("#password").removeAttr('required')
+      $("#password").val("")
+      getUser(function(data) {
         $("#id_user").val(data.data.id_user)
         $("#nama").val(data.data.nama)
         $("#no_telp").val(data.data.no_telp)
@@ -239,21 +255,11 @@
 
         $("#username").val(data.data.username)
         $("#username").attr('readonly', true)
-      }
-    })
-  }
-
-  var modal_akun = document.getElementById('modal-akun')
-  modal_akun.addEventListener('show.bs.modal', function(event) {
-    var button = event.relatedTarget
-    var id = button.getAttribute('data-bs-id')
-    if (id != null) {
-      $('#modal-akunLabel').html('Ubah Akun')
-      $('#password-text').html('Kosongkan jika tidak ingin mengubah password!')
-      getUser(id);
+      }, id);
     } else {
       $('#modal-akunLabel').html('Tambah Akun')
       $('#password-text').html('')
+      $('#password').attr('required', true)
       $("#id_user").val("")
       $("#nama").val("")
       $("#no_telp").val("")
@@ -261,6 +267,7 @@
       $("#alamat").html("")
       $("#prov").val("").change()
       $("#username").val("")
+      $("#password").val("")
       $("#username").removeAttr('readonly')
     }
   });

@@ -3,6 +3,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Users extends CI_Controller
 {
+  private $desc_level;
   public function __construct()
   {
     parent::__construct();
@@ -13,6 +14,14 @@ class Users extends CI_Controller
     $this->load->model('User_model');
     $this->load->model('Perusahaan_model');
     $this->load->model('Menu_model');
+
+    $this->desc_level = [
+      '0' => 'Superadmin',
+      '1' => 'Admin Umum',
+      '2' => 'Admin Billing',
+      '3' => 'Petugas Lapangan',
+      '4' => 'Admin Perusahaan'
+    ];
   }
 
   function _template($url, $data)
@@ -38,6 +47,44 @@ class Users extends CI_Controller
   {
     $data['page'] = 'Akun Perusahaan';
     $this->_template('users/perusahaan/index', $data);
+  }
+
+  public function admin()
+  {
+    $data['page'] = 'Admin';
+    $this->_template('users/admin/index', $data);
+  }
+
+  public function get_admin()
+  {
+    $data = $this->User_model->getAllAdmin();
+
+    $result = '';
+    $no = 1;
+    foreach ($data as $row) {
+      $level = $this->desc_level[$row['level']];
+
+      if ($this->session->userdata('id_user') != $row['id_user']) {
+        $action = "<a href='#' class='action-icon' data-bs-id='$row[id_user]'> <i class='mdi mdi-information-outline'></i></a>
+                    <a href='#' class='action-icon' data-bs-id='$row[id_user]' data-bs-toggle='modal' data-bs-target='#modal-akun'> <i class='mdi mdi-square-edit-outline'></i></a>
+                    <a href='#' class='action-icon' data-bs-id='$row[id_user]'> <i class='mdi mdi-delete'></i></a>";
+      } else {
+        $action = "<a href='#' class='action-icon' data-bs-id='$row[id_user]'> <i class='mdi mdi-information-outline'></i></a>
+                    <a href='#' class='action-icon' data-bs-id='$row[id_user]' data-bs-toggle='modal' data-bs-target='#modal-akun'> <i class='mdi mdi-square-edit-outline'></i></a>";
+      }
+      $result .= "<tr>
+                  <td>$no</td>
+                  <td>$row[nama]</td>
+                  <td>$row[jabatan]</td>
+                  <td>$level</td>
+                  <td>
+                    $action
+                  </td>
+                </tr>";
+      $no++;
+    }
+
+    echo $result;
   }
 
   public function get_perusahaan()
@@ -95,10 +142,12 @@ class Users extends CI_Controller
 
   public function save()
   {
-    $tipe = $this->input->post('tipe');
-    $id_user = $this->input->post('id_user');
-    $username = $this->input->post('username');
-    $email = $this->input->post('email');
+    $post = $this->input->post();
+
+    $tipe = $post['tipe'];
+    $id_user = $post['id_user'];
+    $username = $post['username'];
+    $email = $post['email'];
 
     if ($tipe == 1) {
       $level = '4';
@@ -110,9 +159,63 @@ class Users extends CI_Controller
           exit;
         }
 
-        $simpan_user = $this->User_model->saveUser($this->input->post(), $level);
+        $simpan_user = $this->User_model->saveUser($post, $level);
         if ($simpan_user['status'] == 200) {
-          $result = $this->Perusahaan_model->savePerusahaan($this->input->post(), $simpan_user['timestamp']);
+          $result = $this->Perusahaan_model->savePerusahaan($post, $simpan_user['timestamp']);
+        } else {
+          $result = [
+            'status' => 400,
+            'data' => [
+              'header' => 'Oopss...',
+              'body' => 'User gagal disimpan',
+              'status' => 'error'
+            ]
+          ];
+        }
+      } else {
+        $update_user = $this->User_model->updateUser($post, $level);
+        // echo json_encode($update_user);
+        // exit;
+        if ($update_user['status'] == 200) {
+          $result = $this->Perusahaan_model->updatePerusahaan($post, $update_user['timestamp']);
+        } else {
+          $result = [
+            'status' => 400,
+            'data' => [
+              'header' => 'Oopss...',
+              'body' => 'User gagal disimpan',
+              'status' => 'error'
+            ]
+          ];
+        }
+      }
+    } else {
+      $level = $post['level'];
+      if ($id_user == '') {
+        $cekAkun = $this->cekAkun($username, $email);
+        if ($cekAkun['status'] != 200) {
+          echo json_encode($cekAkun);
+
+          exit;
+        }
+
+        $simpan_user = $this->User_model->saveUser($post, $level);
+        if ($simpan_user['status'] == 200) {
+          $result = $this->User_model->saveProfile($post, $simpan_user['timestamp']);
+        } else {
+          $result = [
+            'status' => 400,
+            'data' => [
+              'header' => 'Oopss...',
+              'body' => 'User gagal disimpan',
+              'status' => 'error'
+            ]
+          ];
+        }
+      } else {
+        $update_user = $this->User_model->updateUser($post, $level);
+        if ($update_user['status'] == 200) {
+          $result = $this->User_model->updateProfile($post, $update_user['timestamp']);
         } else {
           $result = [
             'status' => 400,
@@ -136,6 +239,12 @@ class Users extends CI_Controller
 
     if ($tipe == 1) {
       $data = $this->Perusahaan_model->getPerusahaan($id_user);
+      $result = [
+        'status' => 200,
+        'data' => $data
+      ];
+    } else {
+      $data = $this->User_model->getUser($id_user);
       $result = [
         'status' => 200,
         'data' => $data
