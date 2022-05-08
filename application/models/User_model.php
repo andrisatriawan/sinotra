@@ -132,6 +132,7 @@ class User_model extends CI_Model
     $this->db->select('*');
     $this->db->from('tb_users');
     $this->db->join('tb_profile', 'tb_users.id_user=tb_profile.id_user');
+    $this->db->where('tb_users.level!=', '0');
     $result = $this->db->get();
 
     return $result->result_array();
@@ -217,5 +218,16 @@ class User_model extends CI_Model
   {
     $result = $this->db->get_where('tb_users', ['date_created' => $timestamp]);
     return $result->row_array();
+  }
+
+  public function getPetugas()
+  {
+    $this->db->select('*');
+    $this->db->from('tb_users');
+    $this->db->join('tb_profile', 'tb_users.id_user=tb_profile.id_user');
+    $this->db->where('tb_users.level', '3');
+    $result = $this->db->get();
+
+    return $result->result_array();
   }
 }

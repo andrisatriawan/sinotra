@@ -19,6 +19,8 @@ class Perusahaan_model extends CI_Model
     $this->db->select('*');
     $this->db->from('tb_users');
     $this->db->join('tb_perusahaan', 'tb_users.id_user=tb_perusahaan.id_user');
+    $this->db->order_by('tb_perusahaan.nama', 'ASC');
+
     $result = $this->db->get();
 
     return $result->result_array();

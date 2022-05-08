@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 26, 2022 at 04:45 AM
+-- Generation Time: May 09, 2022 at 01:32 AM
 -- Server version: 10.4.8-MariaDB
 -- PHP Version: 7.3.11
 
@@ -45079,7 +45079,18 @@ INSERT INTO `tb_access_menu` (`id`, `id_menu`, `id_submenu`, `level`) VALUES
 (2, 0, 1, '0'),
 (3, 0, 2, '0'),
 (4, 2, 0, '0'),
-(5, 0, 3, '0');
+(5, 0, 3, '0'),
+(6, 2, 0, '2'),
+(7, 0, 3, '2'),
+(8, 2, 0, '4'),
+(9, 0, 4, '4'),
+(10, 1, 0, '1'),
+(11, 0, 1, '1'),
+(12, 0, 2, '1'),
+(13, 2, 0, '1'),
+(14, 0, 5, '1'),
+(15, 2, 0, '3'),
+(16, 0, 6, '3');
 
 -- --------------------------------------------------------
 
@@ -45133,7 +45144,7 @@ CREATE TABLE `tb_perusahaan` (
 
 INSERT INTO `tb_perusahaan` (`id_perusahaan`, `id_user`, `nama`, `jabatan`, `alamat`, `prov`, `kab`, `kec`, `kel`, `no_telp`, `foto`, `date_created`, `date_updated`, `created_by`, `updated_by`) VALUES
 (1, 1, 'PT. Indah Sejati', 'Admin Perusahaan', 'Jl. Medan', 0, 1207, 120712, 120712, '082167681996', 'default.jpg', '2022-04-04 00:00:00', '2022-04-24 00:00:00', 1, 1),
-(2, 2, 'PT Jaya Peerkasa', 'Admin Perusahaan', 'Jl. SM. Raja No.98', 12, 1271, 127109, 1271091001, '082167546766', 'default.jpg', '2022-04-25 00:13:56', '2022-04-25 17:33:51', 1, 1),
+(2, 2, 'PT Jaya Perkasa', 'Admin Perusahaan', 'Jl. SM. Raja No.98', 12, 1271, 127109, 1271091001, '082167546766', 'default.jpg', '2022-04-25 00:13:56', '2022-05-05 10:58:32', 1, 1),
 (3, 3, 'PT. Indah Kencana', 'Admin Perusahaan', 'Medan', 12, 1271, 127109, 1271091001, '09808908', 'default.jpg', '2022-04-25 00:29:55', '2022-04-25 00:29:55', 1, 1);
 
 -- --------------------------------------------------------
@@ -45160,7 +45171,46 @@ CREATE TABLE `tb_profile` (
 
 INSERT INTO `tb_profile` (`id_profile`, `id_user`, `nama`, `jabatan`, `foto`, `date_created`, `date_updated`, `created_by`, `updated_by`) VALUES
 (1, 1, 'Andri Satriawan', 'Superadmin', 'default.jpg', '2022-04-24 00:00:00', '2022-04-24 00:00:00', 1, 1),
-(2, 4, 'Test', 'Administrasi', 'default.jpg', '2022-04-25 18:40:33', '2022-04-25 19:00:54', 1, 1);
+(2, 4, 'Test', 'Administrasi', 'default.jpg', '2022-04-25 18:40:33', '2022-04-25 19:00:54', 1, 1),
+(3, 5, 'Test', 'Admin E-Billing', 'default.jpg', '2022-05-05 11:06:59', '2022-05-05 11:06:59', 1, 1),
+(4, 6, 'Petugas 1', 'petugas lapangan', 'default.jpg', '2022-05-07 21:56:04', '2022-05-07 21:56:04', 4, 4);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tb_status`
+--
+
+CREATE TABLE `tb_status` (
+  `id` int(11) NOT NULL,
+  `id_tiket` int(11) NOT NULL,
+  `status` enum('0','1','2','3','4','5','6','7','8','9','10','11') NOT NULL,
+  `file` varchar(100) NOT NULL,
+  `tgl` date NOT NULL,
+  `keterangan` varchar(250) NOT NULL,
+  `date_created` datetime NOT NULL,
+  `date_updated` datetime NOT NULL,
+  `created_by` int(11) NOT NULL,
+  `updated_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `tb_status`
+--
+
+INSERT INTO `tb_status` (`id`, `id_tiket`, `status`, `file`, `tgl`, `keterangan`, `date_created`, `date_updated`, `created_by`, `updated_by`) VALUES
+(1, 1, '0', '', '2022-05-05', 'E-Billing dikirim', '2022-05-05 10:38:11', '2022-05-05 10:38:11', 1, 1),
+(2, 2, '0', 'E-BILLING_05-05-2022_10-40-36.pdf', '2022-05-05', 'E-Billing dikirim', '2022-05-05 10:40:36', '2022-05-05 10:40:36', 1, 1),
+(3, 4, '0', 'E-BILLING_05-05-2022_11-09-59.pdf', '2022-05-05', 'E-Billing dikirim', '2022-05-05 11:09:59', '2022-05-05 11:09:59', 5, 5),
+(5, 2, '1', 'BUKTI-BAYAR_05-05-2022_18-30-00.pdf', '2022-05-05', 'Bukti bayar dikirim', '2022-05-05 18:30:00', '2022-05-05 18:30:00', 3, 3),
+(6, 2, '2', '', '2022-05-05', 'Bukti bayar tidak valid', '2022-05-05 21:27:48', '2022-05-05 21:27:48', 5, 5),
+(7, 2, '1', 'BUKTI-BAYAR_05-05-2022_21-34-14.pdf', '2022-05-05', 'Bukti Bayar Dikirim', '2022-05-05 21:34:14', '2022-05-05 21:34:14', 3, 3),
+(8, 2, '3', '', '2022-05-05', 'Bukti bayar diterima', '2022-05-05 22:11:26', '2022-05-05 22:11:26', 5, 5),
+(9, 1, '1', 'BUKTI-BAYAR_07-05-2022_20-29-01.pdf', '2022-05-06', 'Bukti bayar dikirim', '2022-05-07 20:29:01', '2022-05-07 20:29:01', 2, 2),
+(10, 2, '4', 'SPT_07-05-2022_22-21-34.pdf', '2022-05-07', 'SPT ditetapkan', '2022-05-07 22:21:34', '2022-05-07 22:21:34', 4, 4),
+(13, 2, '5', '', '2022-05-09', 'Tanggal Mulai Pengujian', '2022-05-08 22:32:04', '2022-05-08 22:32:04', 6, 6),
+(14, 2, '6', '', '2022-05-13', 'Tanggal Selesai Pengujian', '2022-05-08 22:32:04', '2022-05-08 22:32:04', 6, 6),
+(15, 2, '7', '', '2022-05-16', 'Tanggal Masuk Analisa Lab', '2022-05-08 23:11:48', '2022-05-08 23:11:48', 6, 6);
 
 -- --------------------------------------------------------
 
@@ -45182,7 +45232,39 @@ CREATE TABLE `tb_submenu` (
 INSERT INTO `tb_submenu` (`id_submenu`, `id_menu`, `submenu`, `link`) VALUES
 (1, 1, 'Akun Perusahaan', 'users/perusahaan'),
 (2, 1, 'Admin', 'users/admin'),
-(3, 2, 'Semua', 'tracking/all');
+(3, 2, 'E-Billing', 'tracking/ebilling'),
+(4, 2, 'Pengujian', 'tracking/pengujian'),
+(5, 2, 'SPT', 'tracking/spt'),
+(6, 2, 'Pengujian', 'tracking/all_pengujian');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tb_tiket`
+--
+
+CREATE TABLE `tb_tiket` (
+  `id_tiket` int(11) NOT NULL,
+  `id_perusahaan` int(11) NOT NULL,
+  `pengujian` varchar(100) NOT NULL,
+  `no_ebilling` varchar(100) NOT NULL,
+  `file_ebilling` varchar(100) NOT NULL,
+  `tgl_pengujian` date DEFAULT NULL,
+  `id_user` int(11) DEFAULT NULL,
+  `date_created` datetime NOT NULL,
+  `date_updated` datetime NOT NULL,
+  `created_by` int(11) NOT NULL,
+  `updated_by` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `tb_tiket`
+--
+
+INSERT INTO `tb_tiket` (`id_tiket`, `id_perusahaan`, `pengujian`, `no_ebilling`, `file_ebilling`, `tgl_pengujian`, `id_user`, `date_created`, `date_updated`, `created_by`, `updated_by`) VALUES
+(1, 2, 'Keselamatan K3', '123', 'E-BILLING_05-05-2022_10-38-11.pdf', NULL, NULL, '2022-05-05 10:38:11', '2022-05-05 10:38:11', 1, 1),
+(2, 3, 'Keselamatan K3', '123', 'E-BILLING_05-05-2022_10-40-36.pdf', '2022-05-25', 6, '2022-05-05 10:40:36', '2022-05-05 10:40:36', 1, 4),
+(4, 1, 'Keselamatan Kerja', '1234', 'E-BILLING_05-05-2022_11-09-59.pdf', NULL, NULL, '2022-05-05 11:09:59', '2022-05-05 11:09:59', 5, 5);
 
 -- --------------------------------------------------------
 
@@ -45209,9 +45291,11 @@ CREATE TABLE `tb_users` (
 
 INSERT INTO `tb_users` (`id_user`, `username`, `email`, `password`, `pass_view`, `level`, `date_created`, `date_updated`, `created_by`, `updated_by`) VALUES
 (1, 'superadmin', 'superadmin@balaik3medan.com', 'e10adc3949ba59abbe56e057f20f883e', '123456', '0', '2022-04-24 00:00:00', '2022-04-24 00:00:00', 1, 1),
-(2, 'jayaperkasa', 'jayaperkasa@gmail.com', 'e10adc3949ba59abbe56e057f20f883e', '123456', '4', '2022-04-25 00:13:56', '2022-04-25 17:33:51', 1, 1),
+(2, 'jayaperkasa', 'jayaperkasa@gmail.com', 'e10adc3949ba59abbe56e057f20f883e', '123456', '4', '2022-04-25 00:13:56', '2022-05-05 10:58:32', 1, 1),
 (3, 'indahkencana', 'indahkencana@gmail.com', 'e10adc3949ba59abbe56e057f20f883e', '123456', '4', '2022-04-25 00:29:55', '2022-04-25 17:31:23', 1, 1),
-(4, 'admin_umum', 'test@gmail.com', 'e10adc3949ba59abbe56e057f20f883e', '123456', '1', '2022-04-25 18:40:33', '2022-04-25 19:00:54', 1, 1);
+(4, 'admin_umum', 'test@gmail.com', 'e10adc3949ba59abbe56e057f20f883e', '123456', '1', '2022-04-25 18:40:33', '2022-04-25 19:00:54', 1, 1),
+(5, 'ebilling', 'ebilling@sinotra.com', 'e10adc3949ba59abbe56e057f20f883e', '123456', '2', '2022-05-05 11:06:59', '2022-05-05 11:06:59', 1, 1),
+(6, 'petugas1', 'petugas1@gmail.com', 'e10adc3949ba59abbe56e057f20f883e', '123456', '3', '2022-05-07 21:56:04', '2022-05-07 21:56:04', 4, 4);
 
 --
 -- Indexes for dumped tables
@@ -45266,10 +45350,22 @@ ALTER TABLE `tb_profile`
   ADD PRIMARY KEY (`id_profile`);
 
 --
+-- Indexes for table `tb_status`
+--
+ALTER TABLE `tb_status`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `tb_submenu`
 --
 ALTER TABLE `tb_submenu`
   ADD PRIMARY KEY (`id_submenu`);
+
+--
+-- Indexes for table `tb_tiket`
+--
+ALTER TABLE `tb_tiket`
+  ADD PRIMARY KEY (`id_tiket`);
 
 --
 -- Indexes for table `tb_users`
@@ -45285,7 +45381,7 @@ ALTER TABLE `tb_users`
 -- AUTO_INCREMENT for table `tb_access_menu`
 --
 ALTER TABLE `tb_access_menu`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `tb_menu`
@@ -45303,19 +45399,31 @@ ALTER TABLE `tb_perusahaan`
 -- AUTO_INCREMENT for table `tb_profile`
 --
 ALTER TABLE `tb_profile`
-  MODIFY `id_profile` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_profile` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `tb_status`
+--
+ALTER TABLE `tb_status`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `tb_submenu`
 --
 ALTER TABLE `tb_submenu`
-  MODIFY `id_submenu` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_submenu` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `tb_tiket`
+--
+ALTER TABLE `tb_tiket`
+  MODIFY `id_tiket` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `tb_users`
 --
 ALTER TABLE `tb_users`
-  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_user` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

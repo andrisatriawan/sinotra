@@ -11,6 +11,7 @@
         <div class="page-title-right">
           <ol class="breadcrumb m-0">
             <li class="breadcrumb-item"><a href="<?= base_url('index.php/dashboard') ?>">Dashboard</a></li>
+            <li class="breadcrumb-item ">Users</li>
             <li class="breadcrumb-item active"><?= $page ?></li>
           </ol>
         </div>

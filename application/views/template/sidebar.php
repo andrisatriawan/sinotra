@@ -72,11 +72,7 @@
         }
       }
       ?>
-
-      <!-- <?php
-            echo json_encode($menu);
-            ?> -->
-
+      <!-- 
       <li class="side-nav-item">
         <a data-bs-toggle="collapse" href="#sidebarDashboards" aria-expanded="false" aria-controls="sidebarDashboards" class="side-nav-link">
           <i class="uil-home-alt"></i>
@@ -104,9 +100,9 @@
       <li class="side-nav-item">
         <a href="apps-calendar.html" class="side-nav-link">
           <i class="uil-calender"></i>
-          <span> Calendar </span>
+          <span> <?= date('Y-m-d h:i:s') ?> </span>
         </a>
-      </li>
+      </li> -->
 
     </ul>
     <!-- End Sidebar -->

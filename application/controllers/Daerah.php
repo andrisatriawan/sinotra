@@ -5,6 +5,9 @@ class Daerah extends CI_Controller
   public function __construct()
   {
     parent::__construct();
+    if ($this->session->userdata('username') == null) {
+      redirect(base_url('index.php/auth/login'));
+    }
     $this->load->model('Daerah_model');
   }
 
