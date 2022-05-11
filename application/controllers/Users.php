@@ -140,9 +140,31 @@ class Users extends CI_Controller
     return $result;
   }
 
+  function UserPass($post)
+  {
+    $nama = strtolower($post['nama']);
+    $username = preg_replace('/[^a-zA-Z0-9]/', '', $nama);
+    $cek_username = $this->User_model->getUserByUsername($username);
+    $permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $password = substr(str_shuffle($permitted_chars), 0, 8);
+
+    if ($cek_username['status'] == 200) {
+      $result = [
+        'username' => $username,
+        'password' => $password
+      ];
+    } else {
+    }
+  }
+
   public function save()
   {
     $post = $this->input->post();
+
+    $username = $this->UserPass($post);
+
+    echo json_encode($username);
+    exit;
 
     $tipe = $post['tipe'];
     $id_user = $post['id_user'];
@@ -174,8 +196,6 @@ class Users extends CI_Controller
         }
       } else {
         $update_user = $this->User_model->updateUser($post, $level);
-        // echo json_encode($update_user);
-        // exit;
         if ($update_user['status'] == 200) {
           $result = $this->Perusahaan_model->updatePerusahaan($post, $update_user['timestamp']);
         } else {
