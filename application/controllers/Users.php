@@ -17,10 +17,13 @@ class Users extends CI_Controller
 
     $this->desc_level = [
       '0' => 'Superadmin',
-      '1' => 'Admin Umum',
-      '2' => 'Admin Billing',
-      '3' => 'Petugas Lapangan',
-      '4' => 'Admin Perusahaan'
+      '1' => 'Admin Persuratan',
+      '2' => 'Bendahara PNBP',
+      '3' => 'Pembuat Laporan',
+      '4' => 'Admin Perusahaan',
+      '5' => 'Manager Teknis ISO 17025',
+      '6' => 'Arsip Laporan Pengujian',
+      '7' => 'Kurir Pengirim Laporan',
     ];
   }
 
@@ -99,7 +102,7 @@ class Users extends CI_Controller
                   <td>$row[email]</td>
                   <td>$row[no_telp]</td>
                   <td>
-                    <a href='#' class='action-icon' data-bs-id='$row[id_user]'> <i class='mdi mdi-information-outline'></i></a>
+                    <a href='#' class='action-icon' data-bs-id='$row[id_user]' data-bs-toggle='modal' data-bs-target='#modal-detail'> <i class='mdi mdi-information-outline'></i></a>
                     <a href='#' class='action-icon' data-bs-id='$row[id_user]' data-bs-toggle='modal' data-bs-target='#modal-akun'> <i class='mdi mdi-square-edit-outline'></i></a>
                     <a href='#' class='action-icon' data-bs-id='$row[id_user]'> <i class='mdi mdi-delete'></i></a>
                   </td>

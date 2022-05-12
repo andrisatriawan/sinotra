@@ -81,10 +81,12 @@
             <label for="level" class="form-label">Level</label>
             <select id="level" class="form-control select2" style="width: 100%;" required>
               <option value="" selected disabled>Pilih salah satu...</option>
-              <option value="0">Superadmin</option>
-              <option value="1">Admin Umum</option>
-              <option value="2">Admin Billing</option>
-              <option value="3">Petugas Lapangan</option>
+              <option value="1">Admin Persuratan</option>
+              <option value="2">Bendahara PNBP</option>
+              <option value="5">Manager Teknis ISO 17025</option>
+              <option value="3">Pembuat Laporan</option>
+              <option value="6">Arsip Laporan Pengujian</option>
+              <option value="7">Kurir Pengirim Laporan</option>
             </select>
           </div>
           <div class="col-md-4">
