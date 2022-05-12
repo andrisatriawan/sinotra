@@ -103,18 +103,18 @@
             </div>
             <textarea id="alamat" class="form-control" rows="3" placeholder="Detail Alamat" required></textarea>
           </div>
-          <div class="col-md-6">
+          <input type="hidden" id="username" value="">
+          <input type="hidden" id="password" value="">
+          <!-- <div class="col-md-6">
             <label for="username" class="form-label">Username</label>
             <div class="input-group has-validation">
               <span class="input-group-text" id="inputGroupPrepend">@</span>
-              <input type="text" class="form-control" id="username" aria-describedby="inputGroupPrepend" required>
             </div>
-          </div>
-          <div class="col-md-6">
+          </div> -->
+          <!-- <div class="col-md-6">
             <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" id="password" placeholder="Password" required>
             <small class="small text-danger" id="password-text">Kosongkan jika tidak ingin mengubah password!</small>
-          </div>
+          </div> -->
           <div class="mb-0 text-center">
             <button class="btn btn-primary text-white" type="button" id="btn-simpan"><i class="mdi mdi-content-save"></i> Simpan </button>
           </div>
@@ -226,7 +226,7 @@
         $("#nama").val(data.data.nama)
         $("#no_telp").val(data.data.no_telp)
         $("#email").val(data.data.email)
-        $("#alamat").html(data.data.alamat)
+        $("#alamat").val(data.data.alamat)
         $('#prov').select2().val(data.data.prov).trigger('change')
         // console.log($('#prov').val())
         // $("#prov").val(data.data.prov).change()
@@ -266,6 +266,7 @@
       $("#no_telp").val("")
       $("#email").val("")
       $("#alamat").html("")
+      $("#alamat").val("")
       $("#prov").val("").change()
       $("#username").val("")
       $("#password").val("")

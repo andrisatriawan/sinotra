@@ -18,15 +18,15 @@ class User_model extends CI_Model
     return $result->row_array();
   }
 
-  public function saveUser($data, $level)
+  public function saveUser($data, $level, $userpass)
   {
     $timestamp = date('Y-m-d H:i:s');
     $id_user = $this->session->userdata('id_user');
     $data = [
-      'username' => $data['username'],
+      'username' => $userpass['username'],
       'email' => $data['email'],
-      'password' => md5($data['password']),
-      'pass_view' => $data['password'],
+      'password' => md5($userpass['password']),
+      'pass_view' => $userpass['password'],
       'level' => $level,
       'date_created' => $timestamp,
       'date_updated' => $timestamp,
@@ -55,6 +55,7 @@ class User_model extends CI_Model
     if ($hasil->num_rows() > 0) {
       $result = [
         'status' => 200,
+        'data' => $hasil->row_array()
       ];
     } else {
       $result = [

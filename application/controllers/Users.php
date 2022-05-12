@@ -143,45 +143,55 @@ class Users extends CI_Controller
   function UserPass($post)
   {
     $nama = strtolower($post['nama']);
-    $username = preg_replace('/[^a-zA-Z0-9]/', '', $nama);
-    $cek_username = $this->User_model->getUserByUsername($username);
+    $first_username = preg_replace('/[^a-zA-Z0-9]/', '', $nama);
+    $cek_username = $this->User_model->getUserByUsername($first_username);
     $permitted_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     $password = substr(str_shuffle($permitted_chars), 0, 8);
 
-    if ($cek_username['status'] == 200) {
+    if ($cek_username['status'] != 200) {
       $result = [
-        'username' => $username,
+        'status' => 200,
+        'username' => $first_username,
         'password' => $password
       ];
     } else {
+      while ($cek_username['status'] == 200) {
+        $username = $first_username . rand(10, 99);
+        $cek_username = $this->User_model->getUserByUsername($username);
+      }
+
+      $result = [
+        'status' => 200,
+        'username' => $username,
+        'password' => $password
+      ];
     }
+
+    return $result;
   }
 
   public function save()
   {
     $post = $this->input->post();
 
-    $username = $this->UserPass($post);
-
-    echo json_encode($username);
-    exit;
 
     $tipe = $post['tipe'];
     $id_user = $post['id_user'];
-    $username = $post['username'];
+
     $email = $post['email'];
 
     if ($tipe == 1) {
+      $userpass = $this->UserPass($post);
       $level = '4';
       if ($id_user == '') {
-        $cekAkun = $this->cekAkun($username, $email);
+        $cekAkun = $this->cekAkun($userpass['username'], $email);
         if ($cekAkun['status'] != 200) {
           echo json_encode($cekAkun);
 
           exit;
         }
 
-        $simpan_user = $this->User_model->saveUser($post, $level);
+        $simpan_user = $this->User_model->saveUser($post, $level, $userpass);
         if ($simpan_user['status'] == 200) {
           $result = $this->Perusahaan_model->savePerusahaan($post, $simpan_user['timestamp']);
         } else {
@@ -210,6 +220,11 @@ class Users extends CI_Controller
         }
       }
     } else {
+      $userpass = [
+        'username' => $post['username'],
+        'password' => $post['password']
+      ];
+      $username = $post['username'];
       $level = $post['level'];
       if ($id_user == '') {
         $cekAkun = $this->cekAkun($username, $email);
@@ -219,7 +234,7 @@ class Users extends CI_Controller
           exit;
         }
 
-        $simpan_user = $this->User_model->saveUser($post, $level);
+        $simpan_user = $this->User_model->saveUser($post, $level, $userpass);
         if ($simpan_user['status'] == 200) {
           $result = $this->User_model->saveProfile($post, $simpan_user['timestamp']);
         } else {
