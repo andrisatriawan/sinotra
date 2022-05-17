@@ -84,7 +84,15 @@
                 <span class="timeline-icon"><i class="mdi mdi-adjust"></i></span>
                 <h4 class="mt-0 mb-1 font-16"><?= $detail_status[$row['status']] ?></h4>
                 <p class="text-muted"><small><?= 'Waktu input ke sistem, ' . date('d M Y h:i:s A', strtotime($row['date_created'])) ?></small></p>
-                <p><?= $row['keterangan'] ?></p>
+                <?php
+                if ($row['status'] == '4') {
+                  $keterangan = "Rencana pengambilan sampel uji pada tanggal : " . date('d M Y', strtotime($tiket['tgl_pengujian']));
+                } else {
+                  $keterangan = $row['keterangan'];
+                }
+                ?>
+
+                <p><?= $keterangan ?></p>
 
                 <?php
 

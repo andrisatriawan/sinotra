@@ -64,55 +64,48 @@
   </div>
 </div>
 
-<!-- Modal Konfirmasi Pengujian -->
-<div class="modal fade" id="modal-pengujian" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modal-pengujianLabel" aria-hidden="true">
-  <div class="modal-dialog modal-md">
+<!-- Modal Send Laporan -->
+<div class="modal fade" id="modal-pengiriman" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modal-pengirimanLabel" aria-hidden="true">
+  <div class="modal-dialog modal-fullscreen">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="modal-pengujianLabel">Upload SPT</h5>
+        <h5 class="modal-title" id="modal-pengirimanLabel">Upload Bukti Pengiriman</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form class="row g-3 needs-validation" id="form-pengujian" novalidate>
+        <form class="row g-3 needs-validation" id="form-pengiriman" novalidate>
           <input type="hidden" id="id_tiket" value="">
-          <div class="col-xl-12">
-            <label for="tgl-awal" class="form-label">Tanggal Awal Pengujian</label>
-            <input type="date" class="form-control" id="tgl-awal" required>
-          </div>
-          <div class="col-xl-12">
-            <label for="tgl-akhir" class="form-label">Tanggal Akhir Pengujian</label>
-            <input type="date" class="form-control" id="tgl-akhir" required>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" id="btn-simpan">Kirim</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Tanggal -->
-<div class="modal fade" id="modal-tgl" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modal-tglLabel" aria-hidden="true">
-  <div class="modal-dialog modal-md">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modal-tglLabel"></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form class="row g-3 needs-validation" id="form-tgl" novalidate>
-          <input type="hidden" id="status" value="">
-          <div class="col-xl-12">
-            <label for="tgl" class="form-label">Tanggal</label>
+          <div class="col-md-4">
+            <label for="tgl" class="form-label">Tanggal Dikirim</label>
             <input type="date" class="form-control" id="tgl" required>
           </div>
+          <div class="col-md-4">
+            <label for="jenis_pengiriman" class="form-label">Jenis Pengiriman</label>
+            <select id="jenis_pengiriman" class="form-control select2" required>
+              <option value="" selected disabled>Pilih salah satu...</option>
+              <option value="0">Dikirim langsung</option>
+              <option value="1">Menggunakan jasa ekspedisi</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label for="ekspedisi" class="form-label" id="ekspedisi-label">Jasa Ekspedisi</label>
+            <input type="text" class="form-control" id="ekspedisi" disabled>
+          </div>
+          <div class="col-md-6">
+            <label for="no_resi" class="form-label">Nomor Resi</label>
+            <input type="text" class="form-control" id="no_resi" disabled>
+          </div>
+          <div class="col-md-6">
+            <label for="file" class="form-label">Bukti Pengiriman</label>
+            <input type="file" class="form-control" id="file" accept="image/*" required>
+          </div>
+          <div class="col-md-12 text-center">
+            <button type="button" class="btn btn-sm btn-primary" id="btn-simpan">Simpan</button>
+          </div>
         </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" id="btn-tgl">Kirim</button>
       </div>
     </div>
   </div>
@@ -120,7 +113,7 @@
 
 <script>
   function tampil() {
-    var url = "<?= base_url('index.php/tracking/getAllTicketPetugas') ?>"
+    var url = "<?= base_url('index.php/tracking/getAllTicketLaporan') ?>"
     $.ajax({
       type: "POST",
       dataType: "HTML",
@@ -136,18 +129,43 @@
 
   tampil()
 
+  $('.select2').select2({
+    dropdownParent: $('#modal-pengiriman')
+  })
+
+  $("#jenis_pengiriman").change(function() {
+    if ($(this).val() == 0) {
+      $("#ekspedisi-label").html("Pengirim Laporan")
+      $("#ekspedisi").removeAttr("disabled")
+      $("#ekspedisi").attr("required", true)
+      $("#no_resi").attr("disabled", true)
+      $("#no_resi").removeAttr("required")
+    } else if ($(this).val() == 1) {
+      $("#ekspedisi-label").html("Jasa Ekspedisi")
+      $("#ekspedisi").removeAttr("disabled")
+      $("#ekspedisi").attr("required", true)
+      $("#no_resi").removeAttr("disabled")
+      $("#no_resi").attr("required", true)
+    }
+  })
 
   function simpan() {
-    var url = "<?= base_url('index.php/tracking/saveTglPengujian') ?>";
+    var url = "<?= base_url('index.php/tracking/savePengiriman') ?>";
 
     var id_tiket = $('#id_tiket').val()
-    var tgl_awal = $('#tgl-awal').val()
-    var tgl_akhir = $('#tgl-akhir').val()
+    var tgl = $('#tgl').val()
+    var jenis_pengiriman = $('#jenis_pengiriman').val()
+    var ekspedisi = $('#ekspedisi').val()
+    var no_resi = $('#no_resi').val()
+    var file = $('#file').prop('files')[0]
 
     var form_data = new FormData()
     form_data.append('id_tiket', id_tiket)
-    form_data.append('tgl_awal', tgl_awal)
-    form_data.append('tgl_akhir', tgl_akhir)
+    form_data.append('tgl', tgl)
+    form_data.append('jenis_pengiriman', jenis_pengiriman)
+    form_data.append('ekspedisi', ekspedisi)
+    form_data.append('no_resi', no_resi)
+    form_data.append('file', file)
 
     $.ajax({
       type: "POST",
@@ -164,7 +182,7 @@
         });
         if (data.status == 200) {
           tampil();
-          $("#modal-pengujian").modal('hide');
+          $("#modal-pengiriman").modal('hide');
         } else {
           $('#btn-simpan').removeAttr('disabled');
         }
@@ -172,67 +190,11 @@
     })
   }
 
-  function simpan_tgl() {
-    var url = "<?= base_url('index.php/tracking/saveTgl') ?>";
-    var id_tiket = $("#id_tiket").val()
-    var status = $("#status").val()
-    var tgl = $("#tgl").val()
-    var ket = label[status]
-
-    $.ajax({
-      type: "POST",
-      dataType: "JSON",
-      url: url,
-      data: {
-        id_tiket: id_tiket,
-        status: status,
-        tgl: tgl,
-        ket: ket,
-      },
-      success: function(data) {
-        sweetAlert(data.data.header, data.data.body, data.data.status, {
-          button: null
-        });
-        if (data.status == 200) {
-          tampil();
-          $("#modal-tgl").modal('hide');
-        } else {
-          $('#btn-tgl').removeAttr('disabled');
-        }
-      }
-    })
-  }
-
-  var label = {
-    '8': 'Sampel uji masuk ke lab untuk dianalisa',
-    '9': 'Sampel uji selesai dianalisa di dalam lab',
-    '10': 'Sampel uji mulai dianalisa hasil',
-    '11': 'Sampel uji selesai dianalisa hasil',
-    '12': 'Hasil analisa di verifikasi LHU',
-    '13': 'DHU ditandatangani',
-    '14': 'Laporan dicetak dan dinomori',
-    '15': 'Laporan dikirim',
-  }
-
-  var modal_pengujian = document.getElementById('modal-pengujian')
-  modal_pengujian.addEventListener('show.bs.modal', function(event) {
+  var modal_pengiriman = document.getElementById('modal-pengiriman')
+  modal_pengiriman.addEventListener('show.bs.modal', function(event) {
     var button = event.relatedTarget
     var id = button.getAttribute('data-bs-id')
     $('#id_tiket').val(id);
-  });
-
-  var modal_tgl = document.getElementById('modal-tgl')
-  modal_tgl.addEventListener('show.bs.modal', function(event) {
-    var button = event.relatedTarget
-    var id = button.getAttribute('data-bs-id')
-    var status = button.getAttribute('data-status')
-    $('.was-validated').removeClass('was-validated')
-    $("#modal-tglLabel").html(label[status])
-    $('#id_tiket').val(id);
-    $('#tgl').val('');
-    $('#status').val(status);
-    $('#btn-tgl').removeAttr('disabled');
-
   });
 
   var modal_iframe = document.getElementById('iframe-modal')
@@ -258,7 +220,7 @@
 
   (function() {
     'use strict'
-    var forms = document.querySelectorAll('#form-pengujian.needs-validation')
+    var forms = document.querySelectorAll('#form-pengiriman.needs-validation')
     var btn_simpan = document.getElementById('btn-simpan')
 
     // Loop over them and prevent submission
@@ -271,28 +233,6 @@
           } else {
             $('#btn-simpan').attr('disabled', true);
             simpan()
-          }
-
-          form.classList.add('was-validated')
-        }, false)
-      })
-  })();
-
-  (function() {
-    'use strict'
-    var forms = document.querySelectorAll('#form-tgl.needs-validation')
-    var btn_simpan = document.getElementById('btn-tgl')
-
-    // Loop over them and prevent submission
-    Array.prototype.slice.call(forms)
-      .forEach(function(form) {
-        btn_simpan.addEventListener('click', function(event) {
-          if (!form.checkValidity()) {
-            event.preventDefault()
-            event.stopPropagation()
-          } else {
-            $('#btn-tgl').attr('disabled', true);
-            simpan_tgl()
           }
 
           form.classList.add('was-validated')

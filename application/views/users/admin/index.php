@@ -1,10 +1,4 @@
 <div class="container-fluid">
-  <!-- <style>
-    .select2-container {
-      z-index: 100000;
-    }
-  </style> -->
-  <!-- start page title -->
   <div class="row">
     <div class="col-12">
       <div class="page-title-box">
@@ -86,7 +80,6 @@
               <option value="5">Manager Teknis ISO 17025</option>
               <option value="3">Pembuat Laporan</option>
               <option value="6">Arsip Laporan Pengujian</option>
-              <option value="7">Kurir Pengirim Laporan</option>
             </select>
           </div>
           <div class="col-md-4">

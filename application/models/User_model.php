@@ -18,13 +18,13 @@ class User_model extends CI_Model
     return $result->row_array();
   }
 
-  public function saveUser($data, $level, $userpass)
+  public function saveUser($email, $level, $userpass)
   {
     $timestamp = date('Y-m-d H:i:s');
     $id_user = $this->session->userdata('id_user');
     $data = [
       'username' => $userpass['username'],
-      'email' => $data['email'],
+      'email' => $email,
       'password' => md5($userpass['password']),
       'pass_view' => $userpass['password'],
       'level' => $level,
@@ -121,7 +121,7 @@ class User_model extends CI_Model
     return $result;
   }
 
-  function getOnlyUser($id)
+  public function getOnlyUser($id)
   {
     $result = $this->db->get_where('tb_users', ['id_user' => $id]);
 
@@ -230,5 +230,36 @@ class User_model extends CI_Model
     $result = $this->db->get();
 
     return $result->result_array();
+  }
+
+  public function updatePassword($post)
+  {
+    $data = [
+      'password' => md5($post['new_password']),
+      'pass_view' => $post['new_password'],
+    ];
+    $update = $this->db->update('tb_users', $data, ['id_user' => $post['id_user']]);
+
+    if ($update) {
+      $result = [
+        'status' => 200,
+        'data' => [
+          'header' => 'Berhasil...',
+          'body' => 'Password berhasil diubah!',
+          'status' => 'success'
+        ]
+      ];
+    } else {
+      $result = [
+        'status' => 400,
+        'data' => [
+          'header' => 'Oopss...',
+          'body' => 'Password gagal diubah!',
+          'status' => 'error'
+        ]
+      ];
+    }
+
+    return $result;
   }
 }

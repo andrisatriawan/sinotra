@@ -48,13 +48,13 @@ class Users extends CI_Controller
 
   public function perusahaan()
   {
-    $data['page'] = 'Akun Perusahaan';
+    $data['page'] = 'User Perusahaan';
     $this->_template('users/perusahaan/index', $data);
   }
 
   public function admin()
   {
-    $data['page'] = 'Admin';
+    $data['page'] = 'User Balai K3';
     $this->_template('users/admin/index', $data);
   }
 
@@ -68,11 +68,11 @@ class Users extends CI_Controller
       $level = $this->desc_level[$row['level']];
 
       if ($this->session->userdata('id_user') != $row['id_user']) {
-        $action = "<a href='#' class='action-icon' data-bs-id='$row[id_user]'> <i class='mdi mdi-information-outline'></i></a>
+        $action = "<!--<a href='#' class='action-icon' data-bs-id='$row[id_user]'> <i class='mdi mdi-information-outline'></i></a>-->
                     <a href='#' class='action-icon' data-bs-id='$row[id_user]' data-bs-toggle='modal' data-bs-target='#modal-akun'> <i class='mdi mdi-square-edit-outline'></i></a>
-                    <a href='#' class='action-icon' data-bs-id='$row[id_user]'> <i class='mdi mdi-delete'></i></a>";
+                    <!--<a href='#' class='action-icon' data-bs-id='$row[id_user]'> <i class='mdi mdi-delete'></i></a>-->";
       } else {
-        $action = "<a href='#' class='action-icon' data-bs-id='$row[id_user]'> <i class='mdi mdi-information-outline'></i></a>
+        $action = "<!--<a href='#' class='action-icon' data-bs-id='$row[id_user]'> <i class='mdi mdi-information-outline'></i></a>-->
                     <a href='#' class='action-icon' data-bs-id='$row[id_user]' data-bs-toggle='modal' data-bs-target='#modal-akun'> <i class='mdi mdi-square-edit-outline'></i></a>";
       }
       $result .= "<tr>
@@ -104,7 +104,7 @@ class Users extends CI_Controller
                   <td>
                     <a href='#' class='action-icon' data-bs-id='$row[id_user]' data-bs-toggle='modal' data-bs-target='#modal-detail'> <i class='mdi mdi-information-outline'></i></a>
                     <a href='#' class='action-icon' data-bs-id='$row[id_user]' data-bs-toggle='modal' data-bs-target='#modal-akun'> <i class='mdi mdi-square-edit-outline'></i></a>
-                    <a href='#' class='action-icon' data-bs-id='$row[id_user]'> <i class='mdi mdi-delete'></i></a>
+                    <!--<a href='#' class='action-icon' data-bs-id='$row[id_user]'> <i class='mdi mdi-delete'></i></a>-->
                   </td>
                 </tr>";
       $no++;
@@ -173,28 +173,57 @@ class Users extends CI_Controller
     return $result;
   }
 
+  function createDefaultEmail($post)
+  {
+    $nama = strtolower($post['nama']);
+    $first_username = preg_replace('/[^a-zA-Z0-9]/', '', $nama);
+    $email = $first_username . '@sinotra';
+    $cek_email = $this->User_model->getUserByEmail($email);
+
+    if ($cek_email['status'] != 200) {
+      $result = [
+        'status' => 200,
+        'email' => $email,
+      ];
+    } else {
+      while ($cek_email['status'] == 200) {
+        $email = $first_username . rand(10, 99) . '@sinotra';
+        $cek_email = $this->User_model->getUserByEmail($email);
+      }
+
+      $result = [
+        'status' => 200,
+        'email' => $email,
+      ];
+    }
+
+    return $result;
+  }
+
   public function save()
   {
     $post = $this->input->post();
-
-
     $tipe = $post['tipe'];
     $id_user = $post['id_user'];
 
-    $email = $post['email'];
+    if ($post['email'] == '') {
+      $email = $this->createDefaultEmail($post);
+    } else {
+      $email['email'] = $post['email'];
+    }
 
     if ($tipe == 1) {
       $userpass = $this->UserPass($post);
       $level = '4';
       if ($id_user == '') {
-        $cekAkun = $this->cekAkun($userpass['username'], $email);
+        $cekAkun = $this->cekAkun($userpass['username'], $email['email']);
         if ($cekAkun['status'] != 200) {
           echo json_encode($cekAkun);
 
           exit;
         }
 
-        $simpan_user = $this->User_model->saveUser($post, $level, $userpass);
+        $simpan_user = $this->User_model->saveUser($email['email'], $level, $userpass);
         if ($simpan_user['status'] == 200) {
           $result = $this->Perusahaan_model->savePerusahaan($post, $simpan_user['timestamp']);
         } else {
@@ -223,21 +252,27 @@ class Users extends CI_Controller
         }
       }
     } else {
+      if ($post['password'] == '') {
+        $password = '123456';
+      } else {
+        $password = $post['password'];
+      }
+
       $userpass = [
         'username' => $post['username'],
-        'password' => $post['password']
+        'password' => $password
       ];
       $username = $post['username'];
       $level = $post['level'];
       if ($id_user == '') {
-        $cekAkun = $this->cekAkun($username, $email);
+        $cekAkun = $this->cekAkun($username, $email['email']);
         if ($cekAkun['status'] != 200) {
           echo json_encode($cekAkun);
 
           exit;
         }
 
-        $simpan_user = $this->User_model->saveUser($post, $level, $userpass);
+        $simpan_user = $this->User_model->saveUser($email['email'], $level, $userpass);
         if ($simpan_user['status'] == 200) {
           $result = $this->User_model->saveProfile($post, $simpan_user['timestamp']);
         } else {
@@ -287,6 +322,35 @@ class Users extends CI_Controller
         'status' => 200,
         'data' => $data
       ];
+    }
+
+    echo json_encode($result);
+  }
+
+  public function profile()
+  {
+    $data['page'] = 'My Profile';
+    $data['level'] = $this->desc_level;
+    $this->_template('users/profile', $data);
+  }
+
+  public function update_password()
+  {
+    $post = $this->input->post();
+
+    $cek = $this->User_model->getOnlyUser($post['id_user']);
+
+    if ($cek['pass_view'] != $post['old_password']) {
+      $result = [
+        'status' => 400,
+        'data' => [
+          'header' => 'Oopss...',
+          'body' => 'Password lama tidak sesuai!',
+          'status' => 'error'
+        ]
+      ];
+    } else {
+      $result = $this->User_model->updatePassword($post);
     }
 
     echo json_encode($result);

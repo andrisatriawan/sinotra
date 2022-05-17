@@ -26,9 +26,8 @@
                   <th>No</th>
                   <th>Perusahaan</th>
                   <th>Pengujian</th>
-                  <th>Tanggal Pengujian</th>
+                  <th>Tanggal Kegiatan</th>
                   <th>Status</th>
-                  <th>Tanggal</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
@@ -64,46 +63,17 @@
   </div>
 </div>
 
-<!-- Modal Konfirmasi Pengujian -->
-<div class="modal fade" id="modal-pengujian" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modal-pengujianLabel" aria-hidden="true">
-  <div class="modal-dialog modal-md">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modal-pengujianLabel">Upload SPT</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form class="row g-3 needs-validation" id="form-pengujian" novalidate>
-          <input type="hidden" id="id_tiket" value="">
-          <div class="col-xl-12">
-            <label for="tgl-awal" class="form-label">Tanggal Awal Pengujian</label>
-            <input type="date" class="form-control" id="tgl-awal" required>
-          </div>
-          <div class="col-xl-12">
-            <label for="tgl-akhir" class="form-label">Tanggal Akhir Pengujian</label>
-            <input type="date" class="form-control" id="tgl-akhir" required>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" id="btn-simpan">Kirim</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- Modal Tanggal -->
 <div class="modal fade" id="modal-tgl" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modal-tglLabel" aria-hidden="true">
   <div class="modal-dialog modal-md">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="modal-tglLabel"></h5>
+        <h5 class="modal-title" id="modal-tglLabel">Tanggal Pengujian</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form class="row g-3 needs-validation" id="form-tgl" novalidate>
-          <input type="hidden" id="status" value="">
+          <input type="hidden" id="id_tiket" value="">
           <div class="col-xl-12">
             <label for="tgl" class="form-label">Tanggal</label>
             <input type="date" class="form-control" id="tgl" required>
@@ -120,7 +90,7 @@
 
 <script>
   function tampil() {
-    var url = "<?= base_url('index.php/tracking/getAllTicketPetugas') ?>"
+    var url = "<?= base_url('index.php/tracking/getAllTiketPengujian') ?>"
     $.ajax({
       type: "POST",
       dataType: "HTML",
@@ -136,46 +106,9 @@
 
   tampil()
 
-
-  function simpan() {
-    var url = "<?= base_url('index.php/tracking/saveTglPengujian') ?>";
-
-    var id_tiket = $('#id_tiket').val()
-    var tgl_awal = $('#tgl-awal').val()
-    var tgl_akhir = $('#tgl-akhir').val()
-
-    var form_data = new FormData()
-    form_data.append('id_tiket', id_tiket)
-    form_data.append('tgl_awal', tgl_awal)
-    form_data.append('tgl_akhir', tgl_akhir)
-
-    $.ajax({
-      type: "POST",
-      dataType: "JSON",
-      url: url,
-      processData: false,
-      contentType: false,
-      cache: false,
-      enctype: 'multipart/form-data',
-      data: form_data,
-      success: function(data) {
-        sweetAlert(data.data.header, data.data.body, data.data.status, {
-          button: null
-        });
-        if (data.status == 200) {
-          tampil();
-          $("#modal-pengujian").modal('hide');
-        } else {
-          $('#btn-simpan').removeAttr('disabled');
-        }
-      }
-    })
-  }
-
   function simpan_tgl() {
-    var url = "<?= base_url('index.php/tracking/saveTgl') ?>";
+    var url = "<?= base_url('index.php/tracking/saveTglRencana') ?>";
     var id_tiket = $("#id_tiket").val()
-    var status = $("#status").val()
     var tgl = $("#tgl").val()
     var ket = label[status]
 
@@ -185,7 +118,6 @@
       url: url,
       data: {
         id_tiket: id_tiket,
-        status: status,
         tgl: tgl,
         ket: ket,
       },
@@ -204,35 +136,17 @@
   }
 
   var label = {
-    '8': 'Sampel uji masuk ke lab untuk dianalisa',
-    '9': 'Sampel uji selesai dianalisa di dalam lab',
-    '10': 'Sampel uji mulai dianalisa hasil',
-    '11': 'Sampel uji selesai dianalisa hasil',
-    '12': 'Hasil analisa di verifikasi LHU',
-    '13': 'DHU ditandatangani',
-    '14': 'Laporan dicetak dan dinomori',
-    '15': 'Laporan dikirim',
+    '4': 'Tanggal Pengujian',
   }
 
-  var modal_pengujian = document.getElementById('modal-pengujian')
-  modal_pengujian.addEventListener('show.bs.modal', function(event) {
-    var button = event.relatedTarget
-    var id = button.getAttribute('data-bs-id')
-    $('#id_tiket').val(id);
-  });
-
-  var modal_tgl = document.getElementById('modal-tgl')
-  modal_tgl.addEventListener('show.bs.modal', function(event) {
+  var modal_spt = document.getElementById('modal-tgl')
+  modal_spt.addEventListener('show.bs.modal', function(event) {
     var button = event.relatedTarget
     var id = button.getAttribute('data-bs-id')
     var status = button.getAttribute('data-status')
-    $('.was-validated').removeClass('was-validated')
     $("#modal-tglLabel").html(label[status])
     $('#id_tiket').val(id);
-    $('#tgl').val('');
     $('#status').val(status);
-    $('#btn-tgl').removeAttr('disabled');
-
   });
 
   var modal_iframe = document.getElementById('iframe-modal')
@@ -255,28 +169,6 @@
     console.log(url)
     $('#iframe-berkas').attr('src', url)
   });
-
-  (function() {
-    'use strict'
-    var forms = document.querySelectorAll('#form-pengujian.needs-validation')
-    var btn_simpan = document.getElementById('btn-simpan')
-
-    // Loop over them and prevent submission
-    Array.prototype.slice.call(forms)
-      .forEach(function(form) {
-        btn_simpan.addEventListener('click', function(event) {
-          if (!form.checkValidity()) {
-            event.preventDefault()
-            event.stopPropagation()
-          } else {
-            $('#btn-simpan').attr('disabled', true);
-            simpan()
-          }
-
-          form.classList.add('was-validated')
-        }, false)
-      })
-  })();
 
   (function() {
     'use strict'

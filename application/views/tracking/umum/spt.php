@@ -80,17 +80,14 @@
       <div class="modal-body">
         <form class="row g-3 needs-validation" id="form-akun" novalidate>
           <input type="hidden" id="id_tiket" value="">
-          <div class="col-md-4">
-            <label for="tgl" class="form-label">Tanggal Pengujian</label>
-            <input type="date" class="form-control" id="tgl" required>
-          </div>
-          <div class="col-md-4">
+          <input type="hidden" id="tgl_penetapan" value="">
+          <div class="col-md-6">
             <label for="petugas" class="form-label">Petugas Lapangan</label>
             <select id="petugas" class="form-control select2" required>
               <option value="" selected disabled>Pilih salah satu</option>
             </select>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-6">
             <label for="file" class="form-label">File SPT</label>
             <input type="file" class="form-control" id="file" placeholder="File SPT" accept="application/pdf, image/*" required>
           </div>
@@ -145,7 +142,7 @@
     var url = "<?= base_url('index.php/tracking/saveSPT') ?>";
 
     var id_tiket = $('#id_tiket').val()
-    var tgl = $('#tgl').val()
+    var tgl = $('#tgl_pengujian').val()
     var petugas = $('#petugas').val()
     var file = $('#file').prop('files')[0]
 

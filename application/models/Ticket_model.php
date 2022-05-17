@@ -6,7 +6,7 @@ class Ticket_model extends CI_Model
   {
     $this->db->select('*');
     $this->db->from('tb_tiket');
-    $this->db->join('tb_perusahaan', 'tb_tiket.id_perusahaan=tb_perusahaan.id_perusahaan');
+    $this->db->join('tb_perusahaan', 'tb_tiket.id_perusahaan=tb_perusahaan.id_user');
     $this->db->order_by('tb_tiket.date_created', 'DESC');
     $result = $this->db->get();
 
@@ -141,13 +141,20 @@ class Ticket_model extends CI_Model
     $timestamp = date('Y-m-d H:i:s');
     $id_user = $this->session->userdata('id_user');
     $data = [
-      'tgl_pengujian' => $post['tgl'],
-      'id_user' => $post['petugas'],
       'updated_by' => $timestamp,
       'updated_by' => $id_user,
     ];
-    $update = $this->db->update('tb_tiket', $data, ['id_tiket' => $post['id_tiket']]);
+
+    $final = array_merge($post, $data);
+
+    $update = $this->db->update('tb_tiket', $final, ['id_tiket' => $post['id_tiket']]);
 
     return $update;
+  }
+
+  public function getTicketByID($id)
+  {
+    $result = $this->db->get_where('tb_tiket', ['id_tiket' => $id]);
+    return $result->row_array();
   }
 }

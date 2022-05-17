@@ -134,6 +134,22 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
+        <div class="container">
+          <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-secondary" onclick="copyTeks()"><i class="mdi mdi-content-copy"></i></button>
+          </div>
+
+          <div class="mt-3">
+            <h5 class="font-18">Pesan untuk dikirim ke email perusahaan</h5>
+
+            <hr>
+
+            <textarea id="pesan" rows="10" class="form-control" readonly></textarea>
+
+          </div>
+          <!-- end .mt-4 -->
+
+        </div>
       </div>
     </div>
   </div>
@@ -160,6 +176,11 @@
   $('.select2').select2({
     dropdownParent: $('#modal-akun')
   })
+
+  function copyTeks() {
+    var valueText = $("#pesan").select().val();
+    document.execCommand("copy");
+  }
 
   function simpan() {
     var url = "<?= base_url('index.php/users/save') ?>"
@@ -224,6 +245,23 @@
       }
     })
   }
+
+  var modal_detail = document.getElementById('modal-detail')
+  modal_detail.addEventListener('show.bs.modal', function(event) {
+    var button = event.relatedTarget
+    var id = button.getAttribute('data-bs-id')
+    getUser(function(data) {
+      var pesan = `Hi ${data.data.nama}!
+
+Berikut kami lampirkan username dan password yang akan digunakan untuk upload bukti pembayaran dan tracking pengujian:
+Username : ${data.data.username}
+Password : ${data.data.pass_view}
+
+Terimakasih`;
+      $("#pesan").val(pesan)
+    }, id)
+
+  });
 
   var modal_akun = document.getElementById('modal-akun')
   modal_akun.addEventListener('show.bs.modal', function(event) {

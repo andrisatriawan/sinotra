@@ -75,8 +75,8 @@
             <input type="text" class="form-control" id="pengujian" placeholder="Pengujian" required>
           </div>
           <div class="col-md-6">
-            <label for="no_ebilling" class="form-label">Nomor E-Billing</label>
-            <input type="text" class="form-control" id="no_ebilling" placeholder="Nomor E-Billing" required>
+            <label for="no_ebilling" class="form-label">Kode E-Billing</label>
+            <input type="text" class="form-control" id="no_ebilling" placeholder="Kode E-Billing" required>
           </div>
           <div class="col-md-6">
             <label for="file_ebilling" class="form-label">File E-Billing</label>
@@ -195,7 +195,7 @@
 
   $('.select2').select2({
     dropdownParent: $('#modal-tiket')
-  })
+  });
 
   function simpan() {
     var url = "<?= base_url('index.php/tracking/save') ?>"
@@ -365,7 +365,7 @@
   $("#btn-terima").click(function() {
     $('#btn-terima').attr('disabled', true);
     terima();
-  })
+  });
 
   (function() {
     'use strict'

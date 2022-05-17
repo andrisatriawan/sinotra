@@ -32,6 +32,7 @@
                   <th>No</th>
                   <th>Pengujian</th>
                   <th>Status</th>
+                  <th>Tanggal Status</th>
                   <th>E-Billing</th>
                   <th>Aksi</th>
                 </tr>
@@ -98,6 +99,34 @@
   </div>
 </div>
 
+<!-- Modal Diterima -->
+<div class="modal fade" id="modal-pengiriman" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modal-pengirimanLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modal-pengirimanLabel">Konfirmasi</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form class="row g-3 needs-validation" id="form-konfirm" novalidate>
+          <div class="col-md-12">
+            <label for="tgl_konfirm" class="form-label">Tanggal Diterima</label>
+            <input type="date" class="form-control" id="tgl_konfirm" required>
+          </div>
+          <div class="col-md-12">
+            <label for="file_konfirm" class="form-label">Bukti Diterima</label>
+            <input type="file" class="form-control" id="file_konfirm" accept="image/*" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="btn-konfirm">Simpan</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
   function tampil() {
     var url = "<?= base_url('index.php/tracking/getTicketByUser') ?>"
@@ -151,11 +180,47 @@
     })
   }
 
+  function konfirm() {
+    var url = "<?= base_url('index.php/tracking/saveKonfirm') ?>";
+
+    var id_tiket = $('#id_tiket').val()
+    var tgl = $('#tgl_konfirm').val()
+    var file = $('#file_konfirm').prop('files')[0]
+
+    var form_data = new FormData()
+    form_data.append('id_tiket', id_tiket)
+    form_data.append('tgl', tgl)
+    form_data.append('file', file)
+
+    $.ajax({
+      type: "POST",
+      dataType: "JSON",
+      url: url,
+      processData: false,
+      contentType: false,
+      cache: false,
+      enctype: 'multipart/form-data',
+      data: form_data,
+      success: function(data) {
+        sweetAlert(data.data.header, data.data.body, data.data.status, {
+          button: null
+        });
+        if (data.status == 200) {
+          tampil();
+          $("#modal-pengiriman").modal('hide');
+        } else {
+          $('#btn-konfirm').removeAttr('disabled');
+        }
+      }
+    })
+  }
+
   var modal_pembayaran = document.getElementById('modal-pembayaran')
   modal_pembayaran.addEventListener('show.bs.modal', function(event) {
     var button = event.relatedTarget
     var id = button.getAttribute('data-bs-id')
     var ket = button.getAttribute('data-bs-ket')
+    $('.was-validated').removeClass('was-validated');
     $('#id_tiket').val(id);
     if (ket != null) {
       $("#modal-pembayaranLabel").html("Upload Ulang Bukti Pembayaran")
@@ -189,6 +254,14 @@
     $('#iframe-berkas').attr('src', url)
   });
 
+  var modal_pengiriman = document.getElementById('modal-pengiriman')
+  modal_pengiriman.addEventListener('show.bs.modal', function(event) {
+    var button = event.relatedTarget
+    var id = button.getAttribute('data-bs-id')
+    $('#id_tiket').val(id);
+    $('.was-validated').removeClass('was-validated');
+  });
+
   (function() {
     'use strict'
     var forms = document.querySelectorAll('.needs-validation')
@@ -204,6 +277,28 @@
           } else {
             $('#btn-simpan').attr('disabled', true);
             simpan()
+          }
+
+          form.classList.add('was-validated')
+        }, false)
+      })
+  })();
+
+  (function() {
+    'use strict'
+    var forms = document.querySelectorAll('#form-konfirm.needs-validation')
+    var btn_simpan = document.getElementById('btn-konfirm')
+
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms)
+      .forEach(function(form) {
+        btn_simpan.addEventListener('click', function(event) {
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          } else {
+            $('#btn-konfirm').attr('disabled', true);
+            konfirm()
           }
 
           form.classList.add('was-validated')
