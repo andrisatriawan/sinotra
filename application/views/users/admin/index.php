@@ -69,7 +69,8 @@
           </div>
           <div class="col-md-4">
             <label for="email" class="form-label">E-Mail</label>
-            <input type="email" class="form-control" id="email" placeholder="E-Mail" required>
+            <input type="email" class="form-control" id="email" placeholder="E-Mail">
+            <small class="small text-danger" id="email-text"></small>
           </div>
           <div class="col-md-4">
             <label for="level" class="form-label">Level</label>
@@ -78,7 +79,7 @@
               <option value="1">Admin Persuratan</option>
               <option value="2">Bendahara PNBP</option>
               <option value="5">Manager Teknis ISO 17025</option>
-              <option value="3">Pembuat Laporan</option>
+              <option value="3">Admin LHU</option>
               <option value="6">Arsip Laporan Pengujian</option>
             </select>
           </div>
@@ -91,7 +92,7 @@
           </div>
           <div class="col-md-4">
             <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" id="password" placeholder="Password" required>
+            <input type="password" class="form-control" id="password" placeholder="Password">
             <small class="small text-danger" id="password-text">Kosongkan jika tidak ingin mengubah password!</small>
           </div>
           <div class="mb-0 text-center">
@@ -190,8 +191,9 @@
 
     if (id != null) {
       $('#modal-akunLabel').html('Ubah Akun')
+      $('#email-text').html('Email default nama@sinotra')
       $('#password-text').html('Kosongkan jika tidak ingin mengubah password!')
-      $("#password").removeAttr('required')
+      //   $("#password").removeAttr('required')
       $("#password").val("")
       getUser(function(data) {
         $("#id_user").val(data.data.id_user)
@@ -205,8 +207,9 @@
       }, id);
     } else {
       $('#modal-akunLabel').html('Tambah Akun')
-      $('#password-text').html('')
-      $('#password').attr('required', true)
+      $('#password-text').html('Password default : 123456')
+      $('#email-text').html('Email default nama@sinotra')
+      //   $('#password').attr('required', true)
       $("#id_user").val("")
       $("#nama").val("")
       $("#jabatan").val("")

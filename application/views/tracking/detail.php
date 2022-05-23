@@ -51,12 +51,22 @@
 
         <?php
         $tgl_before = '';
+        $status_before = 0;
+        $numb = 1;
+        // echo json_encode($tiket);
         foreach ($status as $row) :
-          if ($row['status'] % 2 == 1) {
+          if ($row['status'] >= $status_before) {
+            $bullet_color = 'primary';
+            $status_before = $row['status'];
+          } else {
+            $bullet_color = 'secondary';
+          }
+          if ($numb % 2 == 1) {
             $align = 'right';
           } else {
             $align = 'left';
           }
+          $numb++;
 
           $keterangan = [
             '0' => "E-Billing diterbitkan dan dikirim ke perusahaan. Selanjutnya perusahaan akan membayar biaya pengujian yang tertera pada e-Billing",
@@ -81,12 +91,21 @@
             <div class="timeline-desk">
               <div class="timeline-box">
                 <span class="arrow-alt"></span>
-                <span class="timeline-icon"><i class="mdi mdi-adjust"></i></span>
+                <span class="timeline-icon bg-<?= $bullet_color ?>"><i class="mdi mdi-adjust text-white"></i></span>
                 <h4 class="mt-0 mb-1 font-16"><?= $detail_status[$row['status']] ?></h4>
                 <p class="text-muted"><small><?= 'Waktu input ke sistem, ' . date('d M Y h:i:s A', strtotime($row['date_created'])) ?></small></p>
                 <?php
                 if ($row['status'] == '4') {
-                  $keterangan = "Rencana pengambilan sampel uji pada tanggal : " . date('d M Y', strtotime($tiket['tgl_pengujian']));
+                  if ($this->session->userdata('level') == 4) {
+                    $keterangan = "Estimasi tanggal kegiatan : " . date('d M Y', strtotime($tiket['tgl_pengujian']));
+                  } else {
+                    $keterangan = "Estimasi tanggal kegiatan : " . date('d M Y', strtotime($tiket['tgl_pengujian'])) . "
+                    <br>
+                    Admin LHU : $tiket[nama]
+                    <br>
+                    Analis : $tiket[analis]
+                    ";
+                  }
                 } else {
                   $keterangan = $row['keterangan'];
                 }

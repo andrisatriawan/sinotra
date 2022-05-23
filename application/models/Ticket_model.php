@@ -154,7 +154,12 @@ class Ticket_model extends CI_Model
 
   public function getTicketByID($id)
   {
-    $result = $this->db->get_where('tb_tiket', ['id_tiket' => $id]);
+    $this->db->select('*');
+    $this->db->from('tb_tiket');
+    $this->db->join('tb_profile', 'tb_tiket.petugas=tb_profile.id_user');
+    $this->db->where('tb_tiket.id_tiket', $id);
+    $result = $this->db->get();
+
     return $result->row_array();
   }
 }

@@ -26,7 +26,9 @@
                   <th>No</th>
                   <th>Perusahaan</th>
                   <th>Pengujian</th>
-                  <th>Tanggal Kegiatan</th>
+                  <th>Estimasi Tanggal</th>
+                  <th>Admin LHU</th>
+                  <th>Analis</th>
                   <th>Status</th>
                   <th>Aksi</th>
                 </tr>
@@ -68,15 +70,25 @@
   <div class="modal-dialog modal-md">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="modal-tglLabel">Tanggal Pengujian</h5>
+        <h5 class="modal-title" id="modal-tglLabel">Estimasi Tanggal Pengujian</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form class="row g-3 needs-validation" id="form-tgl" novalidate>
           <input type="hidden" id="id_tiket" value="">
           <div class="col-xl-12">
-            <label for="tgl" class="form-label">Tanggal</label>
+            <label for="tgl" class="form-label">Tanggal Pengujian</label>
             <input type="date" class="form-control" id="tgl" required>
+          </div>
+          <div class="col-md-12">
+            <label for="petugas" class="form-label">Admin LHU</label>
+            <select id="petugas" class="form-control select2" required>
+              <option value="" selected disabled>Pilih salah satu</option>
+            </select>
+          </div>
+          <div class="col-xl-12">
+            <label for="analis" class="form-label">Analis</label>
+            <input type="text" class="form-control" id="analis" placeholder="Analis">
           </div>
         </form>
       </div>
@@ -104,12 +116,33 @@
     })
   }
 
+  function getPetugas() {
+    var url = "<?= base_url('index.php/tracking/getPetugas') ?>"
+
+    $.ajax({
+      type: "POST",
+      dataType: "HTML",
+      url: url,
+      success: function(data) {
+        $('#petugas').html(data)
+      }
+    })
+  }
+
+  getPetugas();
+
   tampil()
+
+  $('.select2').select2({
+    dropdownParent: $('#modal-tgl')
+  })
 
   function simpan_tgl() {
     var url = "<?= base_url('index.php/tracking/saveTglRencana') ?>";
     var id_tiket = $("#id_tiket").val()
     var tgl = $("#tgl").val()
+    var petugas = $("#petugas").val()
+    var analis = $("#analis").val()
     var ket = label[status]
 
     $.ajax({
@@ -119,6 +152,8 @@
       data: {
         id_tiket: id_tiket,
         tgl: tgl,
+        petugas: petugas,
+        analis: analis,
         ket: ket,
       },
       success: function(data) {
@@ -136,17 +171,19 @@
   }
 
   var label = {
-    '4': 'Tanggal Pengujian',
+    '4': 'Estimasi Tanggal Pengujian',
   }
 
-  var modal_spt = document.getElementById('modal-tgl')
-  modal_spt.addEventListener('show.bs.modal', function(event) {
+  var modal_tgl = document.getElementById('modal-tgl')
+  modal_tgl.addEventListener('show.bs.modal', function(event) {
     var button = event.relatedTarget
     var id = button.getAttribute('data-bs-id')
     var status = button.getAttribute('data-status')
     $("#modal-tglLabel").html(label[status])
     $('#id_tiket').val(id);
     $('#status').val(status);
+    $('#petugas').val("").change()
+    $('#tgl').val("")
   });
 
   var modal_iframe = document.getElementById('iframe-modal')

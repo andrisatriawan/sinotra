@@ -91,12 +91,12 @@
                 </select>
               </div>
               <div class="col-md-3 mb-3">
-                <select id="kec" class="form-control select2" style="width: 100%;" required>
+                <select id="kec" class="form-control select2" style="width: 100%;">
                   <option value="" selected disabled>Pilih Kecamatan</option>
                 </select>
               </div>
               <div class="col-md-3 mb-3">
-                <select id="kel" class="form-control select2" style="width: 100%;" required>
+                <select id="kel" class="form-control select2" style="width: 100%;">
                   <option value="" selected disabled>Pilih Kelurahan</option>
                 </select>
               </div>

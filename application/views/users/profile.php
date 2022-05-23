@@ -145,24 +145,38 @@
 
             <div class="tab-pane" id="settings">
               <form class="row g-3 needs-validation" id="form-password" novalidate>
-
                 <div class="row my-3">
                   <label for="old-password" class="col-md-4 col-form-label">Password Lama</label>
                   <div class="col-md-8">
-                    <input type="password" class="form-control" id="old-password" placeholder="Password Lama" required>
+                    <div class="input-group input-group-merge">
+                      <input type="password" id="old-password" class="form-control" placeholder="Masukkan Password Lama" required>
+                      <div class="input-group-text" data-password="false">
+                        <span class="password-eye"></span>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div class="row mb-3">
                   <label for="new-password" class="col-md-4 col-form-label">Password Baru</label>
                   <div class="col-md-8">
-                    <input type="password" class="form-control" id="new-password" placeholder="Password Baru" required>
+                    <div class="input-group input-group-merge">
+                      <input type="password" id="new-password" class="form-control" placeholder="Masukkan Password Baru" required>
+                      <div class="input-group-text" data-password="false">
+                        <span class="password-eye"></span>
+                      </div>
+                    </div>
                     <small class="small text-danger" id="wrong-length-pass"></small>
                   </div>
                 </div>
                 <div class="row mb-3">
                   <label for="re-new-password" class="col-md-4 col-form-label">Ulangi Password Baru</label>
                   <div class="col-md-8">
-                    <input type="password" class="form-control" id="re-new-password" placeholder="Ulangi Password Baru" required>
+                    <div class="input-group input-group-merge">
+                      <input type="password" id="re-new-password" class="form-control" placeholder="Ulangi Password Baru" required>
+                      <div class="input-group-text" data-password="false">
+                        <span class="password-eye"></span>
+                      </div>
+                    </div>
                     <small class="small text-danger" id="wrong-pass"></small>
                   </div>
                 </div>

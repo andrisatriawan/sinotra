@@ -224,7 +224,7 @@
     $('#id_tiket').val(id);
     if (ket != null) {
       $("#modal-pembayaranLabel").html("Upload Ulang Bukti Pembayaran")
-      $("#alasan-penolakan").html("Ditolak karena <strong>" + ket + "</strong>")
+      $("#alasan-penolakan").html("Keterangan penolakan : <strong>" + ket + "</strong>")
       $("#alasan-penolakan").show()
     } else {
       $("#modal-pembayaranLabel").html("Upload Bukti Pembayaran")
@@ -238,14 +238,25 @@
     var button = event.relatedTarget
     var src = button.getAttribute('data-bs-file')
     var tgl = button.getAttribute('data-bs-tgl')
+    var resi = button.getAttribute('data-resi')
     var date_upload = button.getAttribute('data-date-upload')
 
     if (tgl != null) {
       $('#keterangan').html("Pembayaran dilakukan pada tanggal " + tgl)
       $('#keterangan').show()
+      $("#keterangan").removeClass('text-danger')
+
     } else {
-      $('#keterangan').html("")
-      $('#keterangan').hide()
+
+      if (resi != null) {
+        $('#keterangan').html("")
+        $("#keterangan").addClass('text-danger')
+        $('#keterangan').hide()
+      } else {
+        $('#keterangan').html("Harap perhatikan tanggal kadaluarsa!")
+        $("#keterangan").addClass('text-danger')
+      }
+      // $('#keterangan').hide()
     }
 
     $("#date-uploaded").html("Diupload pada tanggal : " + date_upload)

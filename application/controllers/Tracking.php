@@ -21,8 +21,8 @@ class Tracking extends CI_Controller
         '1' => 'Verifikasi pembayaran',
         '2' => 'Pembayaran ditolak',
         '3' => 'Pembayaran diterima',
-        '4' => 'Tanggal pengambilan sampel ditetapkan',
-        '5' => 'SPT dikirim',
+        '4' => 'Estimasi tanggal kegiatan ditetapkan',
+        '5' => 'Surat Tugas dikirim',
         '6' => 'Pengambilan sampel dilaksanakan',
         '7' => 'Pengambilan sampel selesai dilaksanakan',
         '8' => 'Sampel masuk ke Analisa Lab',
@@ -41,8 +41,8 @@ class Tracking extends CI_Controller
         '1' => 'Menunggu verifikasi pembayaran',
         '2' => 'Bukti pembayaran ditolak',
         '3' => 'Bukti pembayaran diterima',
-        '4' => 'Penetapan tanggal pengambilan sampel',
-        '5' => 'SPT telah dikirim',
+        '4' => 'Estimasi tanggal kegiatan ditetapkan',
+        '5' => 'Surat Tugas telah dikirim',
         '6' => 'Pengambilan sampel',
         '7' => 'Selesai pengambilan sampel',
         '8' => 'Sampel masuk ke Analisa Lab',
@@ -93,30 +93,38 @@ class Tracking extends CI_Controller
       if ($status['status'] <= 3) {
         $url = base_url('index.php/tracking/detail/') . $row['id_tiket'];
         if ($status['status'] == 1) {
-          $aksi = "<li><button class='dropdown-item' data-bs-toggle='modal' data-date-upload='$status[date_created]' data-bs-tgl='$status[tgl]' data-bs-file='$status[file]' data-bs-target='#iframe-modal'><i class='mdi mdi-eye-outline'></i> Lihat Bukti Pembayaran</button></li>
+          $color = 'warning';
+          $aksi = "<div class='btn-group dropstart' role='group'>
+                      <button id='aksi' type='button' class='btn btn-sm dropdown-toggle' data-bs-toggle='dropdown' aria-expanded='false'>
+                      Pilih
+                      </button>
+                      <ul class='dropdown-menu dropdown-menu-start' aria-labelledby='aksi'>
+          <li><button class='dropdown-item' data-bs-toggle='modal' data-date-upload='$status[date_created]' data-bs-tgl='$status[tgl]' data-bs-file='$status[file]' data-bs-target='#iframe-modal'><i class='mdi mdi-eye-outline'></i> Lihat Bukti Pembayaran</button></li>
                 <li><button class='dropdown-item' data-bs-toggle='modal' data-bs-id='$row[id_tiket]' data-bs-target='#modal-terima'><i class='mdi mdi-check'></i> Terima Bukti Pembayaran</button></li>        
-                <li><button class='dropdown-item' data-bs-toggle='modal' data-bs-id='$row[id_tiket]' data-bs-target='#modal-tolak'><i class='mdi mdi-close'></i> Tolak Bukti Pembayaran</button></li>";
+                <li><button class='dropdown-item' data-bs-toggle='modal' data-bs-id='$row[id_tiket]' data-bs-target='#modal-tolak'><i class='mdi mdi-close'></i> Tolak Bukti Pembayaran</button></li>
+                </ul>
+                    </div>";
+        } elseif ($status['status'] == 2) {
+          $color = 'danger';
+          $aksi = "<a class='action-icon' href='$url' data-bs-toggle='tooltip' data-bs-placement='bottom' title='Tracking'><i class='uil-location-arrow'></i></a>";
+        } elseif ($status['status'] == 3) {
+          $color = 'success';
+          $aksi = "<a class='action-icon' href='$url' data-bs-toggle='tooltip' data-bs-placement='bottom' title='Tracking'><i class='uil-location-arrow'></i></a>";
         } else {
-          $aksi = "<li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>";
+          $color = 'warning';
+          $aksi = "<a class='action-icon' href='$url' data-bs-toggle='tooltip' data-bs-placement='bottom' title='Tracking'><i class='uil-location-arrow'></i></a>";
         }
         $status = $this->status[$status['status']];
         $result .= "<tr>
                   <td>$no</td>
                   <td>$row[nama]</td>
                   <td>$row[pengujian]</td>
-                  <td>$status</td>
+                  <td><span class='badge rounded-pill bg-$color'>$status</span></td>
                   <td>
-                  <a href='#' class='action-icon' data-date-upload='$row[date_created]' data-bs-file='$row[file_ebilling]' data-bs-toggle='modal' data-bs-target='#iframe-modal'> <i class='mdi mdi-eye-outline'></i></a>
+                  <a href='#' class='action-icon' data-date-upload='$row[date_created]' data-bs-file='$row[file_ebilling]' data-bs-toggle='modal' data-bs-target='#iframe-modal' data-bs-toggle='tooltip' data-bs-placement='bottom' title='Lihat'> <i class='mdi mdi-eye-outline'></i></a>
                   </td>
                   <td>
-                    <div class='btn-group dropstart' role='group'>
-                      <button id='aksi' type='button' class='btn btn-sm dropdown-toggle' data-bs-toggle='dropdown' aria-expanded='false'>
-                      Pilih
-                      </button>
-                      <ul class='dropdown-menu dropdown-menu-start' aria-labelledby='aksi'>
                         $aksi
-                      </ul>
-                    </div>
                   </td>
                 </tr>";
         $no++;
@@ -141,6 +149,39 @@ class Tracking extends CI_Controller
     $source = $_FILES["$file_upload"]["tmp_name"];
     $basename = $file_name;
     $target_file = $dir . $basename;
+    $ext = array("jpeg", "jpg", "png", "pdf");
+    $file_ext = strtolower(pathinfo($_FILES["$file_upload"]["name"], PATHINFO_EXTENSION));
+    $size = $_FILES["$file_upload"]['size'];
+    $max_size = 5000000;
+
+    if (!in_array($file_ext, $ext)) {
+      $result = [
+        'status' => 400,
+        'data' => [
+          'header' => 'Oops!',
+          'body' => 'File ekstensi tidak diijinkan! (pdf, jpg, jpeg, png)',
+          'status' => 'error'
+        ]
+      ];
+
+      return $result;
+      exit;
+    }
+
+    if ($size > $max_size) {
+      $result = [
+        'status' => 400,
+        'data' => [
+          'header' => 'Oops!',
+          'body' => 'File terlalu besar! (Maks. 5Mb)',
+          'status' => 'error'
+        ]
+      ];
+
+      return $result;
+      exit;
+    }
+
     if (move_uploaded_file($source, $target_file)) {
       $result = [
         'status' => 200,
@@ -164,7 +205,9 @@ class Tracking extends CI_Controller
     if (isset($_FILES['file_ebilling'])) {
       $upload = $this->uploadFile($dir, $file_name, 'file_ebilling');
       if ($upload['status'] != 200) {
-        $file_name = 'default.jpg';
+        echo json_encode($upload);
+        // echo json_encode($_FILES['file_ebilling']);
+        exit;
       }
     } else {
       $file_name = 'default.jpg';
@@ -191,40 +234,71 @@ class Tracking extends CI_Controller
       $url = base_url('index.php/tracking/detail/') . $row['id_tiket'];
       $status = $this->Ticket_model->getStatusByTicketDesc($row['id_tiket']);
       if ($status['status'] == 0) {
-        $aksi = "<li><button class='dropdown-item' data-bs-toggle='modal' data-bs-id='$row[id_tiket]' data-bs-target='#modal-pembayaran'><i class='mdi mdi-ticket-confirmation-outline'></i> Upload Bukti Pembayaran</button></li>
-                <li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>";
+        $color = 'warning';
+        $aksi = "<div class='btn-group dropstart' role='group'>
+                      <button id='aksi' type='button' class='btn btn-sm dropdown-toggle' data-bs-toggle='dropdown' aria-expanded='false'>
+                      Pilih
+                      </button>
+                      <ul class='dropdown-menu' aria-labelledby='aksi'>
+                      <li><button class='dropdown-item' data-bs-toggle='modal' data-bs-id='$row[id_tiket]' data-bs-target='#modal-pembayaran'><i class='mdi mdi-ticket-confirmation-outline'></i> Upload Bukti Pembayaran</button></li>
+                <li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>
+                </ul>
+                    </div>";
       } else if ($status['status'] == 2) {
-        $aksi = "<li><button class='dropdown-item' data-bs-toggle='modal' data-bs-ket='$status[keterangan]' data-bs-id='$row[id_tiket]' data-bs-target='#modal-pembayaran'><i class='mdi mdi-ticket-confirmation-outline'></i> Upload Ulang Bukti Pembayaran</button></li>
-                <li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>";
+        $color = 'danger';
+        $aksi = "<div class='btn-group dropstart' role='group'>
+                      <button id='aksi' type='button' class='btn btn-sm dropdown-toggle' data-bs-toggle='dropdown' aria-expanded='false'>
+                      Pilih
+                      </button>
+                      <ul class='dropdown-menu' aria-labelledby='aksi'>
+                      <li><button class='dropdown-item' data-bs-toggle='modal' data-bs-ket='$status[keterangan]' data-bs-id='$row[id_tiket]' data-bs-target='#modal-pembayaran'><i class='mdi mdi-ticket-confirmation-outline'></i> Upload Ulang Bukti Pembayaran</button></li>
+                <li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>
+                </ul>
+                    </div>";
       } else if ($status['status'] == 1) {
-        $aksi = "<li><a class='btn dropdown-item' data-bs-file='$status[file]' data-date-upload='$status[date_created]' data-bs-tgl='$status[tgl]' data-bs-toggle='modal' data-bs-target='#iframe-modal'> <i class='mdi mdi-eye-outline'></i> Lihat Bukti Pembayaran</a></li>
-        <li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>";
+        $color = 'warning';
+        $aksi = "<div class='btn-group dropstart' role='group'>
+                      <button id='aksi' type='button' class='btn btn-sm dropdown-toggle' data-bs-toggle='dropdown' aria-expanded='false'>
+                      Pilih
+                      </button>
+                      <ul class='dropdown-menu' aria-labelledby='aksi'>
+                      <li><a class='btn dropdown-item' data-bs-file='$status[file]' data-date-upload='$status[date_created]' data-bs-tgl='$status[tgl]' data-bs-toggle='modal' data-bs-target='#iframe-modal'> <i class='mdi mdi-eye-outline'></i> Lihat Bukti Pembayaran</a></li>
+        <li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>
+        </ul>
+                    </div>";
       } else if ($status['status'] == 15) {
-        $aksi = "<li><button class='dropdown-item' data-bs-toggle='modal' data-bs-id='$row[id_tiket]' data-bs-target='#modal-pengiriman'><i class='mdi mdi-file-check-outline'></i> Konfirmasi laporan diterima</button></li>
-        <li><a class='btn dropdown-item' data-bs-file='$status[file]' data-date-upload='$status[date_created]' data-bs-toggle='modal' data-bs-target='#iframe-modal'> <i class='mdi mdi-eye-outline'></i> Lihat Bukti Pengiriman</a></li>
-        <li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>";
+        $color = 'warning';
+        $aksi = "<div class='btn-group dropstart' role='group'>
+                      <button id='aksi' type='button' class='btn btn-sm dropdown-toggle' data-bs-toggle='dropdown' aria-expanded='false'>
+                      Pilih
+                      </button>
+                      <ul class='dropdown-menu' aria-labelledby='aksi'>
+                      <li><button class='dropdown-item' data-bs-toggle='modal' data-bs-id='$row[id_tiket]' data-bs-target='#modal-pengiriman'><i class='mdi mdi-file-check-outline'></i> Konfirmasi laporan diterima</button></li>
+        <li><a class='btn dropdown-item' data-bs-file='$status[file]' data-resi='Y' data-date-upload='$status[date_created]' data-bs-toggle='modal' data-bs-target='#iframe-modal'> <i class='mdi mdi-eye-outline'></i> Lihat Bukti Pengiriman</a></li>
+        <li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>
+        </ul>
+                    </div>";
+      } else if ($status['status'] == 3) {
+        $color = 'success';
+        $aksi = "<a class='action-icon' href='$url' data-bs-toggle='tooltip' data-bs-placement='bottom' title='Tracking'><i class='uil-location-arrow'></i></a>";
+        // $aksi = "<a class='action-icon' href='$url'><i class='uil-location-arrow'></i></a>";
       } else {
-        $aksi = "<li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>";
+        $color = 'secondary';
+        // $aksi = "<a class='action-icon' href='$url'><i class='uil-location-arrow'></i></a>";
+        $aksi = "<a class='action-icon' href='$url' data-bs-toggle='tooltip' data-bs-placement='bottom' title='Tracking'><i class='uil-location-arrow'></i></a>";
       }
       $view_status = $this->status[$status['status']];
       $tgl_status = date('d M Y', strtotime($status['tgl']));
       $result .= "<tr>
                   <td>$no</td>
                   <td>$row[pengujian]</td>
-                  <td>$view_status</td>
+                  <td><span class='badge rounded-pill bg-$color'>$view_status</span></td>
                   <td>$tgl_status</td>
                   <td>
-                  <a href='#' class='action-icon' data-date-upload='$row[date_created]' data-bs-file='$row[file_ebilling]' data-bs-toggle='modal' data-bs-target='#iframe-modal'> <i class='mdi mdi-eye-outline'></i></a>
+                  <a href='#' class='action-icon' data-date-upload='$row[date_created]' data-bs-file='$row[file_ebilling]' data-bs-toggle='modal' data-bs-target='#iframe-modal' data-bs-toggle='tooltip' data-bs-placement='bottom' title='Lihat File'> <i class='mdi mdi-eye-outline'></i></a>
                   </td>
                   <td>
-                    <div class='btn-group dropstart' role='group'>
-                      <button id='aksi' type='button' class='btn btn-sm dropdown-toggle' data-bs-toggle='dropdown' aria-expanded='false'>
-                      Pilih
-                      </button>
-                      <ul class='dropdown-menu' aria-labelledby='aksi'>
                         $aksi
-                      </ul>
-                    </div>
                   </td>
                 </tr>";
       $no++;
@@ -241,7 +315,9 @@ class Tracking extends CI_Controller
     if (isset($_FILES['file'])) {
       $upload = $this->uploadFile($dir, $file_name, 'file');
       if ($upload['status'] != 200) {
-        $file_name = 'default.jpg';
+        echo json_encode($upload);
+        // echo json_encode($_FILES['file_ebilling']);
+        exit;
       }
     } else {
       $file_name = 'default.jpg';
@@ -359,9 +435,9 @@ class Tracking extends CI_Controller
     $this->_template('tracking/detail', $data);
   }
 
-  public function spt()
+  public function surat_tugas()
   {
-    $data['page'] = 'SPT';
+    $data['page'] = 'Surat Tugas';
     $this->_template('tracking/umum/spt', $data);
   }
 
@@ -376,10 +452,13 @@ class Tracking extends CI_Controller
         $url = base_url('index.php/tracking/detail/') . $row['id_tiket'];
         if ($status['status'] == 4) {
           $tgl = date('d M Y', strtotime($row['tgl_pengujian']));
-          $aksi = "<li><button class='dropdown-item' data-bs-toggle='modal' data-bs-id='$row[id_tiket]' data-bs-target='#modal-spt'><i class='mdi mdi-upload'></i> Upload SPT</button></li>";
+          $aksi = "<li><button class='dropdown-item' data-bs-toggle='modal' data-tipe='0' data-bs-id='$row[id_tiket]' data-bs-target='#modal-spt'><i class='mdi mdi-upload'></i> Upload Surat Tugas</button></li>
+          <li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>";
         } else {
           $tgl = date('d M Y', strtotime($row['tgl_pengujian']));
-          $aksi = "<li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>";
+          $aksi = "<li><a class='btn dropdown-item' data-bs-file='$status[file]' data-date-upload='$status[date_created]' data-bs-tgl='$status[tgl]' data-bs-toggle='modal' data-bs-target='#iframe-modal'> <i class='mdi mdi-eye-outline'></i> Lihat Surat Tugas</a></li>
+          <li><button class='dropdown-item' data-bs-toggle='modal' data-tipe='1' data-bs-id='$row[id_tiket]' data-bs-target='#modal-spt'><i class='mdi mdi-upload'></i> Re-Upload Surat Tugas</button></li>
+          <li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>";
         }
         $view_status = $this->status[$status['status']];
         $result .= "<tr>
@@ -387,7 +466,7 @@ class Tracking extends CI_Controller
                   <td>$row[nama]</td>
                   <td>$row[pengujian]</td>
                   <td>$tgl</td>
-                  <td>$view_status</td>
+                  <td><span class='badge rounded-pill bg-secondary'>$view_status</span></td>
                   <td>
                     <div class='btn-group' role='group'>
                       <button id='aksi' type='button' class='btn btn-sm dropdown-toggle' data-bs-toggle='dropdown' aria-expanded='false'>
@@ -430,6 +509,8 @@ class Tracking extends CI_Controller
     $data_tiket = [
       'id_tiket' => $post['id_tiket'],
       'tgl_pengujian' => $post['tgl'],
+      'petugas' => $post['petugas'],
+      'analis' => $post['analis'],
     ];
 
     $simpan = $this->Ticket_model->saveStatus($data, '');
@@ -462,38 +543,49 @@ class Tracking extends CI_Controller
   {
     $dir = 'assets/files/';
     $date = date("d-m-Y_H-i-s");
-    $file_name = "SPT_$date.pdf";
+    $file_name = "ST_$date.pdf";
     if (isset($_FILES['file'])) {
       $upload = $this->uploadFile($dir, $file_name, 'file');
       if ($upload['status'] != 200) {
-        $file_name = 'default.jpg';
+        echo json_encode($upload);
+        // echo json_encode($_FILES['file_ebilling']);
+        exit;
       }
     } else {
       $file_name = 'default.jpg';
     }
 
     $post = $this->input->post();
-    $data = [
-      'id_tiket' => $post['id_tiket'],
-      'status' => '5',
-      'tgl' => date('Y-m-d'),
-      'keterangan' => 'SPT dikirim'
-    ];
+    if ($post['tipe'] == 0) {
+      $data = [
+        'id_tiket' => $post['id_tiket'],
+        'status' => '5',
+        'tgl' => date('Y-m-d'),
+        'keterangan' => 'Surat tugas dikirim'
+      ];
+    } else {
+      $data = [
+        'id_tiket' => $post['id_tiket'],
+        'status' => '5',
+        'tgl' => date('Y-m-d'),
+        'keterangan' => 'Surat tugas diubah'
+      ];
+    }
 
-    $data_tiket = [
-      'id_tiket' => $post['id_tiket'],
-      'petugas' => $post['petugas'],
-    ];
+    // $data_tiket = [
+    //   'id_tiket' => $post['id_tiket'],
+    //   'petugas' => $post['petugas'],
+    // ];
 
     $simpan = $this->Ticket_model->saveStatus($data, $file_name);
-    $update = $this->Ticket_model->updateTiket($data_tiket);
+    // $update = $this->Ticket_model->updateTiket($data_tiket);
 
-    if ($simpan && $update) {
+    if ($simpan) {
       $result = [
         'status' => 200,
         'data' => [
           'header' => 'Berhasil...',
-          'body' => 'SPT berhasil dikirim',
+          'body' => 'Surat Tugas berhasil dikirim',
           'status' => 'success'
         ]
       ];
@@ -502,7 +594,7 @@ class Tracking extends CI_Controller
         'status' => 400,
         'data' => [
           'header' => 'Oops...',
-          'body' => 'SPT gagal dikirim',
+          'body' => 'Surat Tugas gagal dikirim',
           'status' => 'error'
         ]
       ];
@@ -567,7 +659,7 @@ class Tracking extends CI_Controller
                     <td>$row[nama]</td>
                     <td>$row[pengujian]</td>
                     <td>$tgl</td>
-                    <td>$view_status</td>
+                    <td><span class='badge rounded-pill bg-secondary'>$view_status</span></td>
                     <td>$tgl_status</td>
                     <td>
                       <div class='btn-group' role='group'>
@@ -682,11 +774,25 @@ class Tracking extends CI_Controller
       if ($status['status'] == '3' || $status['status'] == '4') {
         $url = base_url('index.php/tracking/detail/') . $row['id_tiket'];
         if ($status['status'] == 3) {
-          $tgl = "Tanggal pengujian belum di tetapkan";
-          $aksi = "<li><button class='dropdown-item' data-bs-toggle='modal' data-status='4' data-bs-id='$row[id_tiket]' data-bs-target='#modal-tgl'><i class='mdi mdi-calendar'></i> Tanggal Pengujian</button></li>";
+          $tgl = "<span class='badge rounded-pill bg-warning'>Estimasi tanggal belum ditetapkan</span>";
+          $admin_lhu = "<span class='badge rounded-pill bg-warning'>Admin LHU belum dipilih</span>";
+          $analis = "<span class='badge rounded-pill bg-warning'>Analis belum dipilih</span>";
+          $aksi = "<div class='btn-group' role='group'>
+                      <button id='aksi' type='button' class='btn btn-sm dropdown-toggle' data-bs-toggle='dropdown' aria-expanded='false'>
+                      Pilih
+                      </button>
+                      <ul class='dropdown-menu' aria-labelledby='aksi'>
+                      <li><button class='dropdown-item' data-bs-toggle='modal' data-status='4' data-bs-id='$row[id_tiket]' data-bs-target='#modal-tgl'><i class='mdi mdi-calendar'></i> Estimasi Tanggal Pengujian</button></li>
+          <li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>
+          </ul>
+                    </div>";
         } else {
           $tgl = date('d M Y', strtotime($row['tgl_pengujian']));
-          $aksi = "<li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>";
+          $user = $this->User_model->getUser($row['petugas']);
+          $admin_lhu = $user['nama'];
+          $analis = $row['analis'];
+          $aksi = "<a class='action-icon' href='$url' data-bs-toggle='tooltip' data-bs-placement='bottom' title='Tracking'><i class='uil-location-arrow'></i></a>";
+          // $aksi = "<a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a>";
         }
         $view_status = $this->status[$status['status']];
         $result .= "<tr>
@@ -694,16 +800,13 @@ class Tracking extends CI_Controller
                   <td>$row[nama]</td>
                   <td>$row[pengujian]</td>
                   <td>$tgl</td>
-                  <td>$view_status</td>
+                  <td>$admin_lhu</td>
+                  <td>$analis</td>
+                  <td><span class='badge rounded-pill bg-secondary'>$view_status</span></td>
                   <td>
-                    <div class='btn-group' role='group'>
-                      <button id='aksi' type='button' class='btn btn-sm dropdown-toggle' data-bs-toggle='dropdown' aria-expanded='false'>
-                      Pilih
-                      </button>
-                      <ul class='dropdown-menu' aria-labelledby='aksi'>
+                    
                         $aksi
-                      </ul>
-                    </div>
+                      
                   </td>
                 </tr>";
         $no++;
@@ -729,9 +832,21 @@ class Tracking extends CI_Controller
       if ($status['status'] == '14' || $status['status'] == '15' || $status['status'] == '16') {
         $url = base_url('index.php/tracking/detail/') . $row['id_tiket'];
         if ($status['status'] == '14') {
-          $aksi = "<li><button class='dropdown-item' data-bs-toggle='modal' data-bs-id='$row[id_tiket]' data-bs-target='#modal-pengiriman'><i class='mdi mdi-file-upload-outline'></i> Upload Bukti Pengiriman</button></li>";
+          $color = 'warning';
+          $aksi = "<div class='btn-group' role='group'>
+                      <button id='aksi' type='button' class='btn btn-sm dropdown-toggle' data-bs-toggle='dropdown' aria-expanded='false'>
+                      Pilih
+                      </button>
+                      <ul class='dropdown-menu' aria-labelledby='aksi'>
+          <li><button class='dropdown-item' data-bs-toggle='modal' data-bs-id='$row[id_tiket]' data-bs-target='#modal-pengiriman'><i class='mdi mdi-file-upload-outline'></i> Upload Bukti Pengiriman</button></li>
+          <li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>
+          </ul>
+                    </div>";
+        } else {
+          $color = 'secondary';
+          $aksi = "<a class='action-icon' href='$url' data-bs-toggle='tooltip' data-bs-placement='bottom' title='Tracking'><i class='uil-location-arrow'></i></a>";
         }
-        $aksi .= "<li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>";
+        // $aksi .= "<li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>";
         $tgl = date('d M Y', strtotime($row['tgl_pengujian']));
         $view_status = $this->status[$status['status']];
         $tgl_status = date('d M Y', strtotime($status['tgl']));
@@ -740,17 +855,12 @@ class Tracking extends CI_Controller
                   <td>$row[nama]</td>
                   <td>$row[pengujian]</td>
                   <td>$tgl</td>
-                  <td>$view_status</td>
+                  <td><span class='badge rounded-pill bg-$color'>$view_status</span></td>
                   <td>$tgl_status</td>
                   <td>
-                    <div class='btn-group' role='group'>
-                      <button id='aksi' type='button' class='btn btn-sm dropdown-toggle' data-bs-toggle='dropdown' aria-expanded='false'>
-                      Pilih
-                      </button>
-                      <ul class='dropdown-menu' aria-labelledby='aksi'>
+                    
                         $aksi
-                      </ul>
-                    </div>
+                      
                   </td>
                 </tr>";
         $no++;
@@ -766,7 +876,7 @@ class Tracking extends CI_Controller
     if ($post['jenis_pengiriman'] == 0) {
       $ket = "Laporan dikirim oleh petugas Balai K3 Medan Sdr. " . $post['ekspedisi'];
     } else {
-      $ket = "Jasa ekpedisi : " . $post['ekspedisi'] . "<br>No. Resi : " . $post['no_resi'];
+      $ket = "Jasa ekpedisi : " . $post['ekspedisi'];
     }
 
     $dir = 'assets/files/';
@@ -775,7 +885,9 @@ class Tracking extends CI_Controller
     if (isset($_FILES['file'])) {
       $upload = $this->uploadFile($dir, $file_name, 'file');
       if ($upload['status'] != 200) {
-        $file_name = 'default.jpg';
+        echo json_encode($upload);
+        // echo json_encode($_FILES['file_ebilling']);
+        exit;
       }
     } else {
       $file_name = 'default.jpg';
@@ -823,7 +935,9 @@ class Tracking extends CI_Controller
     if (isset($_FILES['file'])) {
       $upload = $this->uploadFile($dir, $file_name, 'file');
       if ($upload['status'] != 200) {
-        $file_name = 'default.jpg';
+        echo json_encode($upload);
+        // echo json_encode($_FILES['file_ebilling']);
+        exit;
       }
     } else {
       $file_name = 'default.jpg';

@@ -71,24 +71,19 @@
 
 <!-- Modal SPT -->
 <div class="modal fade" id="modal-spt" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modal-sptLabel" aria-hidden="true">
-  <div class="modal-dialog modal-fullscreen">
+  <div class="modal-dialog modal-md">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="modal-sptLabel">Upload SPT</h5>
+        <h5 class="modal-title" id="modal-sptLabel">Upload Surat Tugas</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form class="row g-3 needs-validation" id="form-akun" novalidate>
           <input type="hidden" id="id_tiket" value="">
           <input type="hidden" id="tgl_penetapan" value="">
-          <div class="col-md-6">
-            <label for="petugas" class="form-label">Petugas Lapangan</label>
-            <select id="petugas" class="form-control select2" required>
-              <option value="" selected disabled>Pilih salah satu</option>
-            </select>
-          </div>
-          <div class="col-md-6">
-            <label for="file" class="form-label">File SPT</label>
+          <input type="hidden" id="tipe" value="">
+          <div class="col-md-12">
+            <label for="file" class="form-label">Surat Tugas</label>
             <input type="file" class="form-control" id="file" placeholder="File SPT" accept="application/pdf, image/*" required>
           </div>
         </form>
@@ -117,21 +112,6 @@
     })
   }
 
-  function getPetugas() {
-    var url = "<?= base_url('index.php/tracking/getPetugas') ?>"
-
-    $.ajax({
-      type: "POST",
-      dataType: "HTML",
-      url: url,
-      success: function(data) {
-        $('#petugas').html(data)
-      }
-    })
-  }
-
-  getPetugas();
-
   tampil()
 
   $('.select2').select2({
@@ -142,14 +122,12 @@
     var url = "<?= base_url('index.php/tracking/saveSPT') ?>";
 
     var id_tiket = $('#id_tiket').val()
-    var tgl = $('#tgl_pengujian').val()
-    var petugas = $('#petugas').val()
+    var tipe = $('#tipe').val()
     var file = $('#file').prop('files')[0]
 
     var form_data = new FormData()
     form_data.append('id_tiket', id_tiket)
-    form_data.append('tgl', tgl)
-    form_data.append('petugas', petugas)
+    form_data.append('tipe', tipe)
     form_data.append('file', file)
 
     $.ajax({
@@ -179,7 +157,13 @@
   modal_spt.addEventListener('show.bs.modal', function(event) {
     var button = event.relatedTarget
     var id = button.getAttribute('data-bs-id')
+    var tipe = button.getAttribute('data-tipe')
     $('#id_tiket').val(id);
+    $('#tipe').val(tipe);
+    $('#file').val("");
+    $('.was-validated').removeClass('was-validated');
+    $('#btn-simpan').removeAttr('disabled');
+
   });
 
   var modal_iframe = document.getElementById('iframe-modal')
@@ -189,13 +173,8 @@
     var tgl = button.getAttribute('data-bs-tgl')
     var date_upload = button.getAttribute('data-date-upload')
 
-    if (tgl != null) {
-      $('#keterangan').html("Pembayaran dilakukan pada tanggal " + tgl)
-      $('#keterangan').show()
-    } else {
-      $('#keterangan').html("")
-      $('#keterangan').hide()
-    }
+    $('#keterangan').html("")
+    $('#keterangan').hide()
 
     $("#date-uploaded").html("Diupload pada tanggal : " + date_upload)
     var url = "<?= base_url() . 'assets/files/' ?>" + src;

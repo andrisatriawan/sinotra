@@ -19,7 +19,7 @@ class Users extends CI_Controller
       '0' => 'Superadmin',
       '1' => 'Admin Persuratan',
       '2' => 'Bendahara PNBP',
-      '3' => 'Pembuat Laporan',
+      '3' => 'Admin LHU',
       '4' => 'Admin Perusahaan',
       '5' => 'Manager Teknis ISO 17025',
       '6' => 'Arsip Laporan Pengujian',

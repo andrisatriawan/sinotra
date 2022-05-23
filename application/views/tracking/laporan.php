@@ -28,7 +28,7 @@
                   <th>Pengujian</th>
                   <th>Tanggal Pengujian</th>
                   <th>Status</th>
-                  <th>Tanggal</th>
+                  <th>Tanggal Status</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
@@ -75,11 +75,11 @@
       <div class="modal-body">
         <form class="row g-3 needs-validation" id="form-pengiriman" novalidate>
           <input type="hidden" id="id_tiket" value="">
-          <div class="col-md-4">
+          <div class="col-md-6">
             <label for="tgl" class="form-label">Tanggal Dikirim</label>
             <input type="date" class="form-control" id="tgl" required>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-6">
             <label for="jenis_pengiriman" class="form-label">Jenis Pengiriman</label>
             <select id="jenis_pengiriman" class="form-control select2" required>
               <option value="" selected disabled>Pilih salah satu...</option>
@@ -87,14 +87,14 @@
               <option value="1">Menggunakan jasa ekspedisi</option>
             </select>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-6">
             <label for="ekspedisi" class="form-label" id="ekspedisi-label">Jasa Ekspedisi</label>
             <input type="text" class="form-control" id="ekspedisi" disabled>
           </div>
-          <div class="col-md-6">
+          <!-- <div class="col-md-6">
             <label for="no_resi" class="form-label">Nomor Resi</label>
             <input type="text" class="form-control" id="no_resi" disabled>
-          </div>
+          </div> -->
           <div class="col-md-6">
             <label for="file" class="form-label">Bukti Pengiriman</label>
             <input type="file" class="form-control" id="file" accept="image/*" required>
@@ -138,14 +138,15 @@
       $("#ekspedisi-label").html("Pengirim Laporan")
       $("#ekspedisi").removeAttr("disabled")
       $("#ekspedisi").attr("required", true)
-      $("#no_resi").attr("disabled", true)
-      $("#no_resi").removeAttr("required")
+      // $("#no_resi").attr("disabled", true)
+      // $("#no_resi").removeAttr("required")
+
     } else if ($(this).val() == 1) {
       $("#ekspedisi-label").html("Jasa Ekspedisi")
       $("#ekspedisi").removeAttr("disabled")
       $("#ekspedisi").attr("required", true)
-      $("#no_resi").removeAttr("disabled")
-      $("#no_resi").attr("required", true)
+      // $("#no_resi").removeAttr("disabled")
+      // $("#no_resi").attr("required", true)
     }
   })
 
@@ -156,7 +157,7 @@
     var tgl = $('#tgl').val()
     var jenis_pengiriman = $('#jenis_pengiriman').val()
     var ekspedisi = $('#ekspedisi').val()
-    var no_resi = $('#no_resi').val()
+    // var no_resi = $('#no_resi').val()
     var file = $('#file').prop('files')[0]
 
     var form_data = new FormData()
@@ -164,7 +165,7 @@
     form_data.append('tgl', tgl)
     form_data.append('jenis_pengiriman', jenis_pengiriman)
     form_data.append('ekspedisi', ekspedisi)
-    form_data.append('no_resi', no_resi)
+    // form_data.append('no_resi', no_resi)
     form_data.append('file', file)
 
     $.ajax({
