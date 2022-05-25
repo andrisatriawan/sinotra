@@ -162,4 +162,15 @@ class Ticket_model extends CI_Model
 
     return $result->row_array();
   }
+
+  public function getPerusahaanByID($id)
+  {
+    $this->db->select('*');
+    $this->db->from('tb_tiket');
+    $this->db->join('tb_perusahaan', 'tb_tiket.id_perusahaan=tb_perusahaan.id_user');
+    $this->db->where('tb_tiket.id_tiket', $id);
+    $result = $this->db->get();
+
+    return $result->row_array();
+  }
 }

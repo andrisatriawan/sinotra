@@ -58,6 +58,29 @@ class Tracking extends CI_Controller
     }
   }
 
+  function _sendEmail($to, $subject, $message)
+  {
+    $config = [
+      'protocol' => "smtp",
+      'smtp_host' => "ssl://mail.simpelkan.org",
+      'smtp_user' => "sinotra@simpelkan.org",
+      'smtp_pass' => "sinotrabalaik3mdn",
+      'smtp_port' => 465,
+      'mailtype' => 'html',
+      'charset' => 'utf-8',
+      'newline' => "\r\n"
+    ];
+
+    $this->load->library('email', $config);
+
+    $this->email->from('sinotra@simpelkan.org', 'System SINOTRA');
+    $this->email->to($to);
+    $this->email->subject($subject);
+    $this->email->message($message);
+
+    $this->email->send();
+  }
+
   function _template($url, $data)
   {
     $level = $this->session->userdata('level');
@@ -330,6 +353,25 @@ class Tracking extends CI_Controller
       'tgl' => $post['tgl'],
       'keterangan' => 'Bukti bayar dikirim'
     ];
+
+    $bendahara = $this->User_model->getBendahara();
+    $url_berkas = base_url() . $dir . $file_name;
+    $url = base_url('index.php');
+    $perusahaan = $this->Ticket_model->getPerusahaanByID($post['id_tiket']);
+    $subject = "Notifikasi pembayaran oleh $perusahaan[nama]";
+
+    if ($bendahara->num_rows() == 1) {
+      $row = $bendahara->row_array();
+      $message = "Halo $row[nama],<br>Kami informasikan pembayaran billing telah dilakukan oleh $perusahaan[nama]. Cek bukti bayar <a href='$url_berkas' target='blank'>disini</a>, dan login ke <a href='$url' target='blank'>SINOTRA</a> untuk memverifikasi.";
+      $email = $row['email'];
+      $this->_sendEmail($email, $subject, $message);
+    } else if ($bendahara->num_rows() > 1) {
+      foreach ($bendahara->result_array() as $row) {
+        $message = "Halo $row[nama]<br>Kami informasikan pembayaran billing telah dilakukan oleh $perusahaan[nama]. Cek bukti bayar <a href='$url_berkas' target='blank'>disini</a>, dan login ke <a href='$url' target='blank'>SINOTRA</a> untuk memverifikasi.";
+        $email = $row['email'];
+        $this->_sendEmail($email, $subject, $message);
+      }
+    }
 
     $simpan = $this->Ticket_model->saveStatus($data, $file_name);
 

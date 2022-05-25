@@ -232,6 +232,17 @@ class User_model extends CI_Model
     return $result->result_array();
   }
 
+  public function getBendahara()
+  {
+    $this->db->select('*');
+    $this->db->from('tb_users');
+    $this->db->join('tb_profile', 'tb_users.id_user=tb_profile.id_user');
+    $this->db->where('tb_users.level', '2');
+    $result = $this->db->get();
+
+    return $result;
+  }
+
   public function updatePassword($post)
   {
     $data = [
