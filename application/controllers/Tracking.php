@@ -1016,4 +1016,40 @@ class Tracking extends CI_Controller
 
     echo json_encode($result);
   }
+
+  public function all()
+  {
+    $data['page'] = "Semua Pengujian";
+    $this->_template('tracking/semua', $data);
+  }
+
+  public function getAllPengujian()
+  {
+    $data = $this->Ticket_model->getAllTicket();
+    $result = '';
+    $no = 1;
+    foreach ($data as $row) {
+      $status = $this->Ticket_model->getStatusByTicketDesc($row['id_tiket']);
+      $url = base_url('index.php/tracking/detail/') . $row['id_tiket'];
+      $color = 'secondary';
+
+      // $aksi .= "<li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>";
+      $tgl = date('d M Y', strtotime($row['tgl_pengujian']));
+      $view_status = $this->status[$status['status']];
+      $tgl_status = date('d M Y', strtotime($status['tgl']));
+      $result .= "<tr>
+                  <td>$no</td>
+                  <td>$row[nama]</td>
+                  <td>$row[pengujian]</td>
+                  <td><span class='badge rounded-pill bg-$color'>$view_status</span></td>
+                  <td>$tgl_status</td>
+                  <td>
+                    <a class='action-icon' href='$url' data-bs-toggle='tooltip' data-bs-placement='bottom' title='Tracking'><i class='uil-location-arrow'></i></a>
+                  </td>
+                </tr>";
+      $no++;
+    }
+
+    echo $result;
+  }
 }
