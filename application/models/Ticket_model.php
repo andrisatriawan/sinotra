@@ -124,7 +124,7 @@ class Ticket_model extends CI_Model
     $this->db->order_by('status', 'DESC');
     $result = $this->db->get_where('tb_status', ['id_tiket' => $id]);
 
-    return $result->result_array();
+    return $result;
   }
 
   public function getTicketByStatus($id, $status)

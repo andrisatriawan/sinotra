@@ -170,10 +170,10 @@ class Tracking extends CI_Controller
   function uploadFile($dir, $file_name, $file_upload)
   {
     $source = $_FILES["$file_upload"]["tmp_name"];
-    $basename = $file_name;
-    $target_file = $dir . $basename;
     $ext = array("jpeg", "jpg", "png", "pdf");
     $file_ext = strtolower(pathinfo($_FILES["$file_upload"]["name"], PATHINFO_EXTENSION));
+    $basename = $file_name . '.' . $file_ext;
+    $target_file = $dir . $basename;
     $size = $_FILES["$file_upload"]['size'];
     $max_size = 5000000;
 
@@ -208,7 +208,8 @@ class Tracking extends CI_Controller
     if (move_uploaded_file($source, $target_file)) {
       $result = [
         'status' => 200,
-        'message' => ' Berhasil upload file'
+        'message' => ' Berhasil upload file',
+        'name' => $basename
       ];
     } else {
       $result = [
@@ -224,13 +225,15 @@ class Tracking extends CI_Controller
   {
     $dir = 'assets/files/';
     $date = date("d-m-Y_H-i-s");
-    $file_name = "E-BILLING_$date.pdf";
+    $file_name = "E-BILLING_$date";
     if (isset($_FILES['file_ebilling'])) {
       $upload = $this->uploadFile($dir, $file_name, 'file_ebilling');
       if ($upload['status'] != 200) {
         echo json_encode($upload);
         // echo json_encode($_FILES['file_ebilling']);
         exit;
+      } else {
+        $file_name = $upload['name'];
       }
     } else {
       $file_name = 'default.jpg';
@@ -334,13 +337,15 @@ class Tracking extends CI_Controller
   {
     $dir = 'assets/files/';
     $date = date("d-m-Y_H-i-s");
-    $file_name = "BUKTI-BAYAR_$date.pdf";
+    $file_name = "BUKTI-BAYAR_$date";
     if (isset($_FILES['file'])) {
       $upload = $this->uploadFile($dir, $file_name, 'file');
       if ($upload['status'] != 200) {
         echo json_encode($upload);
         // echo json_encode($_FILES['file_ebilling']);
         exit;
+      } else {
+        $file_name = $upload['name'];
       }
     } else {
       $file_name = 'default.jpg';
@@ -471,7 +476,8 @@ class Tracking extends CI_Controller
   public function detail($id)
   {
     $data['page'] = 'Detail';
-    $data['status'] = $this->Ticket_model->allStatusByDateDesc($id);
+    $data['status'] = $this->Ticket_model->allStatusByDateDesc($id)->result_array();
+    $data['status_now'] = $this->Ticket_model->allStatusByDateDesc($id)->row_array();
     $data['tiket'] = $this->Ticket_model->getTicketByID($id);
     $data['detail_status'] = $this->status;
     $this->_template('tracking/detail', $data);
@@ -530,6 +536,7 @@ class Tracking extends CI_Controller
   public function getPetugas()
   {
     $data = $this->User_model->getPetugas();
+
     $result = "<option value='' selected disabled>Pilih salah satu...</option>";
     foreach ($data as $row) {
       $result .= "<option value='$row[id_user]'>$row[nama]</option>";
@@ -585,13 +592,15 @@ class Tracking extends CI_Controller
   {
     $dir = 'assets/files/';
     $date = date("d-m-Y_H-i-s");
-    $file_name = "ST_$date.pdf";
+    $file_name = "ST_$date";
     if (isset($_FILES['file'])) {
       $upload = $this->uploadFile($dir, $file_name, 'file');
       if ($upload['status'] != 200) {
         echo json_encode($upload);
         // echo json_encode($_FILES['file_ebilling']);
         exit;
+      } else {
+        $file_name = $upload['name'];
       }
     } else {
       $file_name = 'default.jpg';
@@ -923,13 +932,15 @@ class Tracking extends CI_Controller
 
     $dir = 'assets/files/';
     $date = date("d-m-Y_H-i-s");
-    $file_name = "RESI_$date.jpg";
+    $file_name = "RESI_$date";
     if (isset($_FILES['file'])) {
       $upload = $this->uploadFile($dir, $file_name, 'file');
       if ($upload['status'] != 200) {
         echo json_encode($upload);
         // echo json_encode($_FILES['file_ebilling']);
         exit;
+      } else {
+        $file_name = $upload['name'];
       }
     } else {
       $file_name = 'default.jpg';
@@ -973,13 +984,15 @@ class Tracking extends CI_Controller
 
     $dir = 'assets/files/';
     $date = date("d-m-Y_H-i-s");
-    $file_name = "BUKTI_TERIMA_$date.jpg";
+    $file_name = "BUKTI_TERIMA_$date";
     if (isset($_FILES['file'])) {
       $upload = $this->uploadFile($dir, $file_name, 'file');
       if ($upload['status'] != 200) {
         echo json_encode($upload);
         // echo json_encode($_FILES['file_ebilling']);
         exit;
+      } else {
+        $file_name = $upload['name'];
       }
     } else {
       $file_name = 'default.jpg';
@@ -1015,5 +1028,41 @@ class Tracking extends CI_Controller
     }
 
     echo json_encode($result);
+  }
+
+  public function all()
+  {
+    $data['page'] = "Semua Pengujian";
+    $this->_template('tracking/semua', $data);
+  }
+
+  public function getAllPengujian()
+  {
+    $data = $this->Ticket_model->getAllTicket();
+    $result = '';
+    $no = 1;
+    foreach ($data as $row) {
+      $status = $this->Ticket_model->getStatusByTicketDesc($row['id_tiket']);
+      $url = base_url('index.php/tracking/detail/') . $row['id_tiket'];
+      $color = 'secondary';
+
+      // $aksi .= "<li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>";
+      $tgl = date('d M Y', strtotime($row['tgl_pengujian']));
+      $view_status = $this->status[$status['status']];
+      $tgl_status = date('d M Y', strtotime($status['tgl']));
+      $result .= "<tr>
+                  <td>$no</td>
+                  <td>$row[nama]</td>
+                  <td>$row[pengujian]</td>
+                  <td><span class='badge rounded-pill bg-$color'>$view_status</span></td>
+                  <td>$tgl_status</td>
+                  <td>
+                    <a class='action-icon' href='$url' data-bs-toggle='tooltip' data-bs-placement='bottom' title='Tracking'><i class='uil-location-arrow'></i></a>
+                  </td>
+                </tr>";
+      $no++;
+    }
+
+    echo $result;
   }
 }

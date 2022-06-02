@@ -26,6 +26,66 @@
       display: block;
       width: 100%;
     }
+
+    .timeline-steps .timeline-step:not(:last-child):after {
+      content: "";
+      display: block;
+      border-top: .25rem dotted #d3d3d3;
+      width: 3.46rem;
+      position: absolute;
+      left: 7.5rem;
+      top: .3125rem
+    }
+
+    .timeline-steps .timeline-step:not(:first-child):before {
+      content: "";
+      display: block;
+      border-top: .25rem dotted #d3d3d3;
+      width: 3.8125rem;
+      position: absolute;
+      right: 7.5rem;
+      top: .3125rem
+    }
+  }
+
+  .timeline-steps {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap
+  }
+
+  .timeline-steps .timeline-step {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    margin: 1rem
+  }
+
+  .timeline-steps .timeline-content {
+    width: 10rem;
+    text-align: center
+  }
+
+  .timeline-steps .timeline-content .inner-circle {
+    border-radius: 1.5rem;
+    height: 1rem;
+    width: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #3b82f6
+  }
+
+  .timeline-steps .timeline-content .inner-circle:before {
+    content: "";
+    background-color: #d3d3d3;
+    display: inline-block;
+    height: 3rem;
+    width: 3rem;
+    min-width: 3rem;
+    border-radius: 6.25rem;
+    opacity: .5
   }
 </style>
 <div class="container-fluid">
@@ -45,94 +105,186 @@
     </div>
   </div>
 
-  <div class="row">
-    <div class="col-12">
-      <div class="timeline" dir="ltr">
+  <?php
+  if ($status_now['status'] >= 0 && $status_now['status'] < 3) {
+    $bg_billing = 'bg-warning';
+    $bg_tgl = 'bg-secondary';
+    $bg_pengujian = 'bg-secondary';
+    $bg_proses = 'bg-secondary';
+    $bg_laporan = 'bg-secondary';
+  } else if ($status_now['status'] >= 3 && $status_now['status'] < 5) {
+    $bg_billing = 'bg-primary';
+    $bg_tgl = 'bg-warning';
+    $bg_pengujian = 'bg-secondary';
+    $bg_proses = 'bg-secondary';
+    $bg_laporan = 'bg-secondary';
+  } else if ($status_now['status'] >= 5 && $status_now['status'] < 7) {
+    $tgl_pengujian = date('Ymd', strtotime($tiket['tgl_pengujian']));
+    $tgl_now = date('Ymd');
+    if ($tgl_pengujian <= $tgl_now) {
+      $bg_billing = 'bg-primary';
+      $bg_tgl = 'bg-primary';
+      $bg_pengujian = 'bg-warning';
+    } else {
+      $bg_billing = 'bg-primary';
+      $bg_tgl = 'bg-warning';
+      $bg_pengujian = 'bg-secondary';
+    }
+    $bg_proses = 'bg-secondary';
+    $bg_laporan = 'bg-secondary';
+  } else if ($status_now['status'] >= 7 && $status_now['status'] < 15) {
+    $bg_billing = 'bg-primary';
+    $bg_tgl = 'bg-primary';
+    $bg_pengujian = 'bg-primary';
+    $bg_proses = 'bg-warning';
+    $bg_laporan = 'bg-secondary';
+  } else if ($status_now['status'] == 15) {
+    $bg_billing = 'bg-primary';
+    $bg_tgl = 'bg-primary';
+    $bg_pengujian = 'bg-primary';
+    $bg_proses = 'bg-primary';
+    $bg_laporan = 'bg-warning';
+  } else if ($status_now['status'] == 16) {
+    $bg_billing = 'bg-primary';
+    $bg_tgl = 'bg-primary';
+    $bg_pengujian = 'bg-primary';
+    $bg_proses = 'bg-primary';
+    $bg_laporan = 'bg-primary';
+  } else {
+    echo $status_now['status'];
+  }
+  ?>
 
-        <?php
-        $tgl_before = '';
-        $status_before = 0;
-        $numb = 1;
-        // echo json_encode($tiket);
-        foreach ($status as $row) :
-          if ($row['status'] >= $status_before) {
-            $bullet_color = 'primary';
-            $status_before = $row['status'];
-          } else {
-            $bullet_color = 'secondary';
-          }
-          if ($numb % 2 == 1) {
-            $align = 'right';
-          } else {
-            $align = 'left';
-          }
-          $numb++;
-
-          $keterangan = [
-            '0' => "E-Billing diterbitkan dan dikirim ke perusahaan. Selanjutnya perusahaan akan membayar biaya pengujian yang tertera pada e-Billing",
-            '1' => "Perusahaan membayar biaya pengujian sesuai dengan jumlah yang tertera di e-billing dan bukti pembayaran diupload ke sistem untuk selanjutnya di verifikasi oleh petugas",
-            '2' => "Pembayaran ditolak dengan alasan $row[keterangan]. Perbaiki berkas dan upload ulang bukti pembayaran yang valid dan dapat dipertanggungjawabkan",
-            '3' => "Pembayaran diterima oleh Balai, untuk selanjutnya balai akan mengirimkan SPT (Surat Perintah Tugas) yang berisi jadwal dan petugas yang akan berangkat",
-          ];
-
-          $tgl_show = date('d M Y', strtotime($row['tgl']));
-          if ($tgl_show != $tgl_before) {
-        ?>
-            <div class="timeline-show mb-3 text-center">
-              <h5 class="m-0 time-show-name"><?= $tgl_show ?></h5>
-            </div>
-          <?php
-            $tgl_before = $tgl_show;
-          }
-          ?>
-
-
-          <div class="timeline-lg-item timeline-item-<?= $align ?>">
-            <div class="timeline-desk">
-              <div class="timeline-box">
-                <span class="arrow-alt"></span>
-                <span class="timeline-icon bg-<?= $bullet_color ?>"><i class="mdi mdi-adjust text-white"></i></span>
-                <h4 class="mt-0 mb-1 font-16"><?= $detail_status[$row['status']] ?></h4>
-                <p class="text-muted"><small><?= 'Waktu input ke sistem, ' . date('d M Y h:i:s A', strtotime($row['date_created'])) ?></small></p>
-                <?php
-                if ($row['status'] == '4') {
-                  if ($this->session->userdata('level') == 4) {
-                    $keterangan = "Estimasi tanggal kegiatan : " . date('d M Y', strtotime($tiket['tgl_pengujian']));
-                  } else {
-                    $keterangan = "Estimasi tanggal kegiatan : " . date('d M Y', strtotime($tiket['tgl_pengujian'])) . "
-                    <br>
-                    Admin LHU : $tiket[nama]
-                    <br>
-                    Analis : $tiket[analis]
-                    ";
-                  }
-                } else {
-                  $keterangan = $row['keterangan'];
-                }
-                ?>
-
-                <p><?= $keterangan ?></p>
-
-                <?php
-
-                if ($row['file'] != '') {
-                ?>
-                  <a href="" class="btn btn-sm btn-light" data-date-upload='<?= $row['date_created'] ?>' data-bs-file='<?= $row['file'] ?>' data-bs-toggle='modal' data-bs-target='#iframe-modal'> <i class="mdi mdi-attachment"></i> </a>
-                <?php
-                }
-                ?>
-
-              </div>
+  <div class="container my-5">
+    <div class="row">
+      <div class="col">
+        <div class="timeline-steps aos-init aos-animate" data-aos="fade-up">
+          <div class="timeline-step">
+            <div class="timeline-content" data-toggle="popover" data-trigger="hover" data-placement="top">
+              <div class="inner-circle <?= $bg_billing ?>"></div>
+              <p class="h6 mt-3 mb-1">E-Billing dan Pembayaran</p>
             </div>
           </div>
-
-        <?php
-        endforeach;
-        ?>
-
+          <div class="timeline-step">
+            <div class="timeline-content" data-toggle="popover" data-trigger="hover" data-placement="top">
+              <div class="inner-circle <?= $bg_tgl ?>"></div>
+              <p class="h6 mt-3 mb-1">Penentuan Tanggal dan Surat Tugas</p>
+            </div>
+          </div>
+          <div class="timeline-step">
+            <div class="timeline-content" data-toggle="popover" data-trigger="hover" data-placement="top">
+              <div class="inner-circle <?= $bg_pengujian ?>"></div>
+              <p class="h6 mt-3 mb-1">Pengambilan Sampel</p>
+            </div>
+          </div>
+          <div class="timeline-step">
+            <div class="timeline-content" data-toggle="popover" data-trigger="hover" data-placement="top">
+              <div class="inner-circle <?= $bg_proses ?>"></div>
+              <p class="h6 mt-3 mb-1">Pembuatan Laporan</p>
+            </div>
+          </div>
+          <div class="timeline-step mb-0">
+            <div class="timeline-content" data-toggle="popover" data-trigger="hover" data-placement="top">
+              <div class="inner-circle <?= $bg_laporan ?>"></div>
+              <p class="h6 mt-3 mb-1">Laporan Dikirim</p>
+            </div>
+          </div>
+        </div>
       </div>
-    </div> <!-- end col -->
+    </div>
   </div>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <div class="timeline" dir="ltr">
+
+          <?php
+          $tgl_before = '';
+          $status_before = 0;
+          $numb = 1;
+          // echo json_encode($tiket);
+          foreach ($status as $row) :
+            if ($row['status'] >= $status_before) {
+              $bullet_color = 'primary';
+              $status_before = $row['status'];
+            } else {
+              $bullet_color = 'secondary';
+            }
+            if ($numb % 2 == 1) {
+              $align = 'right';
+            } else {
+              $align = 'left';
+            }
+            $numb++;
+
+            $keterangan = [
+              '0' => "E-Billing diterbitkan dan dikirim ke perusahaan. Selanjutnya perusahaan akan membayar biaya pengujian yang tertera pada e-Billing",
+              '1' => "Perusahaan membayar biaya pengujian sesuai dengan jumlah yang tertera di e-billing dan bukti pembayaran diupload ke sistem untuk selanjutnya di verifikasi oleh petugas",
+              '2' => "Pembayaran ditolak dengan alasan $row[keterangan]. Perbaiki berkas dan upload ulang bukti pembayaran yang valid dan dapat dipertanggungjawabkan",
+              '3' => "Pembayaran diterima oleh Balai, untuk selanjutnya balai akan mengirimkan SPT (Surat Perintah Tugas) yang berisi jadwal dan petugas yang akan berangkat",
+            ];
+
+            $tgl_show = date('d M Y', strtotime($row['tgl']));
+            if ($tgl_show != $tgl_before) {
+          ?>
+              <div class="timeline-show mb-3 text-center">
+                <h5 class="m-0 time-show-name"><?= $tgl_show ?></h5>
+              </div>
+            <?php
+              $tgl_before = $tgl_show;
+            }
+            ?>
+
+
+            <div class="timeline-lg-item timeline-item-<?= $align ?>">
+              <div class="timeline-desk">
+                <div class="timeline-box">
+                  <span class="arrow-alt"></span>
+                  <span class="timeline-icon bg-<?= $bullet_color ?>"><i class="mdi mdi-adjust text-white"></i></span>
+                  <h4 class="mt-0 mb-1 font-16"><?= $detail_status[$row['status']] ?></h4>
+                  <p class="text-muted"><small><?= 'Waktu input ke sistem, ' . date('d M Y h:i:s A', strtotime($row['date_created'])) ?></small></p>
+                  <?php
+                  if ($row['status'] == '4') {
+                    if ($this->session->userdata('level') == 4) {
+                      $keterangan = "Estimasi tanggal kegiatan : " . date('d M Y', strtotime($tiket['tgl_pengujian']));
+                    } else {
+                      $keterangan = "Estimasi tanggal kegiatan : " . date('d M Y', strtotime($tiket['tgl_pengujian'])) . "
+                      <br>
+                      Admin LHU : $tiket[nama]
+                      <br>
+                      Analis : $tiket[analis]
+                      ";
+                    }
+                  } else {
+                    $keterangan = $row['keterangan'];
+                  }
+                  ?>
+
+                  <p><?= $keterangan ?></p>
+
+                  <?php
+
+                  if ($row['file'] != '') {
+                  ?>
+                    <a href="" class="btn btn-sm btn-light" data-date-upload='<?= $row['date_created'] ?>' data-bs-file='<?= $row['file'] ?>' data-bs-toggle='modal' data-bs-target='#iframe-modal'> <i class="mdi mdi-attachment"></i> </a>
+                  <?php
+                  }
+                  ?>
+
+                </div>
+              </div>
+            </div>
+
+          <?php
+          endforeach;
+          ?>
+
+        </div>
+      </div> <!-- end col -->
+    </div>
+  </div>
+
 </div>
 
 
