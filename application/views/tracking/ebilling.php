@@ -64,21 +64,30 @@
       </div>
       <div class="modal-body">
         <form class="row g-3 needs-validation" id="form-akun" novalidate>
-          <div class="col-md-4">
+          <div class="col-md-12">
             <label for="perusahaan" class="form-label">Perusahaan</label>
             <select id="perusahaan" class="form-control select2" style="width: 100%;" required>
               <option value="" selected disabled>Pilih salah satu...</option>
             </select>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-12">
             <label for="pengujian" class="form-label">Pengujian</label>
-            <input type="text" class="form-control" id="pengujian" placeholder="Pengujian" required>
+            <select class="select2 form-control select2-multiple" id="pengujian" data-toggle="select2" multiple="multiple" data-placeholder="Pilih ...">
+              <?php
+              foreach ($jenis_pengujian as $jenis) {
+              ?>
+                <option value="<?= $jenis['id'] ?>">Pengujian <?= $jenis['name'] ?></option>
+              <?php
+              }
+
+              ?>
+            </select>
           </div>
           <input type="hidden" class="form-control" id="no_ebilling" value="0">
-          <!-- <div class="col-md-4">
+          <!-- <div class="col-md-12">
             <label for="no_ebilling" class="form-label">Kode E-Billing</label>
           </div> -->
-          <div class="col-md-4">
+          <div class="col-md-12">
             <label for="file_ebilling" class="form-label">File E-Billing</label>
             <input type="file" class="form-control" id="file_ebilling" placeholder="File E-Billing" accept="application/pdf, image/*" required>
           </div>

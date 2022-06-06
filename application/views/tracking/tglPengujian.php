@@ -88,7 +88,9 @@
           </div>
           <div class="col-xl-12">
             <label for="analis" class="form-label">Analis</label>
-            <input type="text" class="form-control" id="analis" placeholder="Analis">
+            <select id="analis" class="form-control select2" required>
+              <option value="" selected disabled>Pilih salah satu</option>
+            </select>
           </div>
         </form>
       </div>
@@ -129,7 +131,21 @@
     })
   }
 
+  function getAnalis() {
+    var url = "<?= base_url('index.php/tracking/getAnalis') ?>"
+
+    $.ajax({
+      type: "POST",
+      dataType: "HTML",
+      url: url,
+      success: function(data) {
+        $('#analis').html(data)
+      }
+    })
+  }
+
   getPetugas();
+  getAnalis();
 
   tampil()
 

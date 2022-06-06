@@ -4,6 +4,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
 class Tracking extends CI_Controller
 {
   private $status;
+  private $jenis_pengujian;
+
   public function __construct()
   {
     parent::__construct();
@@ -14,6 +16,62 @@ class Tracking extends CI_Controller
     $this->load->model('Perusahaan_model');
     $this->load->model('Menu_model');
     $this->load->model('Ticket_model');
+
+    $this->jenis_pengujian = [
+      [
+        'id' => 1,
+        'name' => 'Kebisingan',
+      ],
+      [
+        'id' => 2,
+        'name' => 'Iklim Kerja',
+      ],
+      [
+        'id' => 3,
+        'name' => 'Intensitas Penerangan',
+      ],
+      [
+        'id' => 4,
+        'name' => 'Getaran Seluruh Tubuh',
+      ],
+      [
+        'id' => 5,
+        'name' => 'Getaran Lengan Tanggan',
+      ],
+      [
+        'id' => 6,
+        'name' => 'Kadar Debu Total',
+      ],
+
+      [
+        'id' => 7,
+        'name' => 'Kualitas Udara Lingkungan Kerja',
+      ],
+      [
+        'id' => 8,
+        'name' => 'Radiasi Sinar Ultra Violet',
+      ],
+
+      [
+        'id' => 9,
+        'name' => 'Kualitas Udara Ambien/Tingkat Kebauan',
+      ],
+
+      [
+        'id' => 10,
+        'name' => 'Mikrobiologi di Udara',
+      ],
+
+      [
+        'id' => 11,
+        'name' => 'Kadar Logam di Udara',
+      ],
+
+      [
+        'id' => 12,
+        'name' => 'Radiasi Medan Magnet',
+      ],
+    ];
 
     if ($this->session->userdata('level') != 4) {
       $this->status = [
@@ -103,6 +161,7 @@ class Tracking extends CI_Controller
   public function ebilling()
   {
     $data['page'] = "E-Billing";
+    $data['jenis_pengujian'] = $this->jenis_pengujian;
     $this->_template('tracking/ebilling', $data);
   }
 
@@ -138,10 +197,16 @@ class Tracking extends CI_Controller
           $aksi = "<a class='action-icon' href='$url' data-bs-toggle='tooltip' data-bs-placement='bottom' title='Tracking'><i class='uil-location-arrow'></i></a>";
         }
         $status = $this->status[$status['status']];
+        $array_pengujian = explode(',', $row['pengujian']);
+        $pengujian = '';
+        foreach ($array_pengujian as $row_peng) {
+          $nama = $this->jenis_pengujian[$row_peng];
+          $pengujian .= "<span class='badge bg-primary'>$nama[name]</span> ";
+        }
         $result .= "<tr>
                   <td>$no</td>
                   <td>$row[nama]</td>
-                  <td>$row[pengujian]</td>
+                  <td width='300px'>$pengujian</td>
                   <td><span class='badge rounded-pill bg-$color'>$status</span></td>
                   <td>
                   <a href='#' class='action-icon' data-date-upload='$row[date_created]' data-bs-file='$row[file_ebilling]' data-bs-toggle='modal' data-bs-target='#iframe-modal' data-bs-toggle='tooltip' data-bs-placement='bottom' title='Lihat'> <i class='mdi mdi-eye-outline'></i></a>
@@ -315,9 +380,15 @@ class Tracking extends CI_Controller
       }
       $view_status = $this->status[$status['status']];
       $tgl_status = date('d M Y', strtotime($status['tgl']));
+      $array_pengujian = explode(',', $row['pengujian']);
+      $pengujian = '';
+      foreach ($array_pengujian as $row_peng) {
+        $nama = $this->jenis_pengujian[$row_peng];
+        $pengujian .= "<span class='badge bg-primary'>$nama[name]</span> ";
+      }
       $result .= "<tr>
                   <td>$no</td>
-                  <td>$row[pengujian]</td>
+                  <td>$pengujian</td>
                   <td><span class='badge rounded-pill bg-$color'>$view_status</span></td>
                   <td>$tgl_status</td>
                   <td>
@@ -509,10 +580,16 @@ class Tracking extends CI_Controller
           <li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>";
         }
         $view_status = $this->status[$status['status']];
+        $array_pengujian = explode(',', $row['pengujian']);
+        $pengujian = '';
+        foreach ($array_pengujian as $row_peng) {
+          $nama = $this->jenis_pengujian[$row_peng];
+          $pengujian .= "<span class='badge bg-primary'>$nama[name]</span> ";
+        }
         $result .= "<tr>
                   <td>$no</td>
                   <td>$row[nama]</td>
-                  <td>$row[pengujian]</td>
+                  <td>$pengujian</td>
                   <td>$tgl</td>
                   <td><span class='badge rounded-pill bg-secondary'>$view_status</span></td>
                   <td>
@@ -535,14 +612,36 @@ class Tracking extends CI_Controller
 
   public function getPetugas()
   {
-    $data = $this->User_model->getPetugas();
+    // $data = $this->User_model->getPetugas();
+    $url = 'http://simpelkan.org/api/index.php?page=getAdminLHU';
+    $admin = file_get_contents($url);
+
+    $data = json_decode($admin, true);
 
     $result = "<option value='' selected disabled>Pilih salah satu...</option>";
-    foreach ($data as $row) {
-      $result .= "<option value='$row[id_user]'>$row[nama]</option>";
+    foreach ($data['data'] as $row) {
+      $result .= "<option value='$row[id]'>$row[nama]</option>";
     }
 
     echo $result;
+    // echo $admin;
+  }
+
+  public function getAnalis()
+  {
+    // $data = $this->User_model->getPetugas();
+    $url = 'http://simpelkan.org/api/index.php?page=getAdminAnalis';
+    $admin = file_get_contents($url);
+
+    $data = json_decode($admin, true);
+
+    $result = "<option value='' selected disabled>Pilih salah satu...</option>";
+    foreach ($data['data'] as $row) {
+      $result .= "<option value='$row[id]'>$row[nama]</option>";
+    }
+
+    echo $result;
+    // echo $admin;
   }
 
   public function saveTglRencana()
@@ -705,10 +804,16 @@ class Tracking extends CI_Controller
           }
           $view_status = $this->status[$status['status']];
           $tgl_status = date('d M Y', strtotime($status['tgl']));
+          $array_pengujian = explode(',', $row['pengujian']);
+          $pengujian = '';
+          foreach ($array_pengujian as $row_peng) {
+            $nama = $this->jenis_pengujian[$row_peng];
+            $pengujian .= "<span class='badge bg-primary'>$nama[name]</span> ";
+          }
           $result .= "<tr>
                     <td>$no</td>
                     <td>$row[nama]</td>
-                    <td>$row[pengujian]</td>
+                    <td>$pengujian</td>
                     <td>$tgl</td>
                     <td><span class='badge rounded-pill bg-secondary'>$view_status</span></td>
                     <td>$tgl_status</td>
@@ -846,10 +951,16 @@ class Tracking extends CI_Controller
           // $aksi = "<a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a>";
         }
         $view_status = $this->status[$status['status']];
+        $array_pengujian = explode(',', $row['pengujian']);
+        $pengujian = '';
+        foreach ($array_pengujian as $row_peng) {
+          $nama = $this->jenis_pengujian[$row_peng];
+          $pengujian .= "<span class='badge bg-primary'>$nama[name]</span> ";
+        }
         $result .= "<tr>
                   <td>$no</td>
                   <td>$row[nama]</td>
-                  <td>$row[pengujian]</td>
+                  <td>$pengujian</td>
                   <td>$tgl</td>
                   <td>$admin_lhu</td>
                   <td>$analis</td>
@@ -901,10 +1012,16 @@ class Tracking extends CI_Controller
         $tgl = date('d M Y', strtotime($row['tgl_pengujian']));
         $view_status = $this->status[$status['status']];
         $tgl_status = date('d M Y', strtotime($status['tgl']));
+        $array_pengujian = explode(',', $row['pengujian']);
+        $pengujian = '';
+        foreach ($array_pengujian as $row_peng) {
+          $nama = $this->jenis_pengujian[$row_peng];
+          $pengujian .= "<span class='badge bg-primary'>$nama[name]</span> ";
+        }
         $result .= "<tr>
                   <td>$no</td>
                   <td>$row[nama]</td>
-                  <td>$row[pengujian]</td>
+                  <td>$pengujian</td>
                   <td>$tgl</td>
                   <td><span class='badge rounded-pill bg-$color'>$view_status</span></td>
                   <td>$tgl_status</td>
@@ -1050,10 +1167,16 @@ class Tracking extends CI_Controller
       $tgl = date('d M Y', strtotime($row['tgl_pengujian']));
       $view_status = $this->status[$status['status']];
       $tgl_status = date('d M Y', strtotime($status['tgl']));
+      $array_pengujian = explode(',', $row['pengujian']);
+      $pengujian = '';
+      foreach ($array_pengujian as $row_peng) {
+        $nama = $this->jenis_pengujian[$row_peng];
+        $pengujian .= "<span class='badge bg-primary'>$nama[name]</span> ";
+      }
       $result .= "<tr>
                   <td>$no</td>
                   <td>$row[nama]</td>
-                  <td>$row[pengujian]</td>
+                  <td>$pengujian</td>
                   <td><span class='badge rounded-pill bg-$color'>$view_status</span></td>
                   <td>$tgl_status</td>
                   <td>
