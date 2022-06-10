@@ -58,4 +58,26 @@ class Api extends CI_Controller
   public function getTiketLHU()
   {
   }
+
+  public function saveAdmLHU()
+  {
+    $post = $this->input->post();
+    $level = '3';
+    if ($post['password'] == '') {
+      $password = '123456';
+    } else {
+      $password = $post['password'];
+    }
+
+    $userpass = [
+      'username' => $post['username'],
+      'password' => $password
+    ];
+
+    $user = $this->User_model->saveUser($post['email'], $level, $userpass);
+
+    if ($user['status'] == 200) {
+      $this->User_model->saveProfile($post, $user['timestamp']);
+    }
+  }
 }
