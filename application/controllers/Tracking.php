@@ -5,6 +5,7 @@ class Tracking extends CI_Controller
 {
   private $status;
   private $jenis_pengujian;
+  private $simpelkan;
 
   public function __construct()
   {
@@ -16,6 +17,8 @@ class Tracking extends CI_Controller
     $this->load->model('Perusahaan_model');
     $this->load->model('Menu_model');
     $this->load->model('Ticket_model');
+
+    $this->simpelkan = ['url' => 'http://localhost/simpelkan/api/index.php?page='];
 
     $this->jenis_pengujian = [
       [
@@ -317,7 +320,8 @@ class Tracking extends CI_Controller
 
   public function getTicketByUser()
   {
-    $data = $this->Ticket_model->getTicketByUser();
+    $id = $this->session->userdata('id_user');
+    $data = $this->Ticket_model->getTicketByUser($id);
     $result = '';
     $no = 1;
 
@@ -659,6 +663,7 @@ class Tracking extends CI_Controller
       'tgl_pengujian' => $post['tgl'],
       'petugas' => $post['petugas'],
       'analis' => $post['analis'],
+      'is_read_lhu' => '0',
     ];
 
     $simpan = $this->Ticket_model->saveStatus($data, '');
@@ -945,8 +950,34 @@ class Tracking extends CI_Controller
         } else {
           $tgl = date('d M Y', strtotime($row['tgl_pengujian']));
           $user = $this->User_model->getUser($row['petugas']);
-          $admin_lhu = $user['nama'];
-          $analis = $row['analis'];
+          $url_lhu = $this->simpelkan['url'] . 'getUserByID';
+          $idLHU = ['id' => $row['petugas']];
+          $idAnalis = ['id' => $row['analis']];
+          $optionsLHU = array(
+            "http" => array(
+              "method" => "POST",
+              "header" => "Content-Type: application/x-www-form-urlencoded",
+              "content" => http_build_query($idLHU)
+            )
+          );
+          $apiAdmlhu = file_get_contents($url_lhu, false, stream_context_create($optionsLHU));
+
+          $optionsAnalis = array(
+            "http" => array(
+              "method" => "POST",
+              "header" => "Content-Type: application/x-www-form-urlencoded",
+              "content" => http_build_query($idAnalis)
+            )
+          );
+          $apiAnalis = file_get_contents($url_lhu, false, stream_context_create($optionsAnalis));
+
+          // echo $apiAnalis;
+          // exit;
+
+          $user_lhu = json_decode($apiAdmlhu, true);
+          $user_analis = json_decode($apiAnalis, true);
+          $admin_lhu = $user_lhu['data']['nama'];
+          $analis = $user_analis['data']['nama'];
           $aksi = "<a class='action-icon' href='$url' data-bs-toggle='tooltip' data-bs-placement='bottom' title='Tracking'><i class='uil-location-arrow'></i></a>";
           // $aksi = "<a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a>";
         }

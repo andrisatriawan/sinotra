@@ -109,9 +109,9 @@ class Ticket_model extends CI_Model
     return $result->row_array();
   }
 
-  public function getTicketByUser()
+  public function getTicketByUser($id)
   {
-    $id = $this->session->userdata('id_user');
+
     $this->db->order_by('date_created', 'DESC');
     $result = $this->db->get_where('tb_tiket', ['id_perusahaan' => $id]);
 
@@ -141,7 +141,7 @@ class Ticket_model extends CI_Model
     $timestamp = date('Y-m-d H:i:s');
     $id_user = $this->session->userdata('id_user');
     $data = [
-      'updated_by' => $timestamp,
+      'date_updated' => $timestamp,
       'updated_by' => $id_user,
     ];
 
