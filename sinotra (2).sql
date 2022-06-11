@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 11, 2022 at 07:04 AM
+-- Generation Time: Jun 11, 2022 at 07:48 PM
 -- Server version: 10.4.8-MariaDB
 -- PHP Version: 7.3.11
 
@@ -45229,7 +45229,8 @@ INSERT INTO `tb_status` (`id`, `id_tiket`, `status`, `file`, `tgl`, `keterangan`
 (31, 4, '1', 'BUKTI-BAYAR_04-06-2022_17-41-37.pdf', '2022-06-04', 'Bukti bayar dikirim', '2022-06-04 17:41:38', '2022-06-04 17:41:38', 13, 13),
 (32, 4, '3', '', '2022-06-04', 'Bukti bayar diterima', '2022-06-04 17:43:02', '2022-06-04 17:43:02', 14, 14),
 (33, 5, '0', 'E-BILLING_04-06-2022_18-14-54.jpg', '2022-06-04', 'E-Billing dikirim', '2022-06-04 18:14:54', '2022-06-04 18:14:54', 14, 14),
-(34, 4, '4', '', '2022-06-10', 'Tanggal pelaksanaan ditetapkan', '2022-06-10 23:54:40', '2022-06-10 23:54:40', 15, 15);
+(35, 4, '4', '', '2022-06-11', 'Tanggal pelaksanaan ditetapkan', '2022-06-11 15:16:59', '2022-06-11 15:16:59', 15, 15),
+(36, 4, '6', '', '2022-06-13', 'Tanggal mulai pengujian', '2022-06-12 00:34:31', '2022-06-12 00:34:31', 63, 63);
 
 -- --------------------------------------------------------
 
@@ -45289,7 +45290,7 @@ CREATE TABLE `tb_tiket` (
 
 INSERT INTO `tb_tiket` (`id_tiket`, `id_perusahaan`, `pengujian`, `no_ebilling`, `file_ebilling`, `tgl_pengujian`, `petugas`, `analis`, `is_read_lhu`, `is_read_analis`, `is_read_lab`, `date_created`, `date_updated`, `created_by`, `updated_by`) VALUES
 (1, 13, 'Keselamatan Kerja', '', 'E-BILLING_20-05-2022_23-36-49.pdf', '2022-05-30', 16, 'Analis', '0', NULL, NULL, '2022-05-20 23:36:49', '2022-05-20 23:36:49', 14, 15),
-(4, 13, '1,2,3', '', 'E-BILLING_04-06-2022_17-20-06.pdf', '2022-06-13', 29, '62', '0', NULL, NULL, '2022-06-04 17:20:06', '2022-06-10 23:54:42', 14, 15),
+(4, 13, '1,2,3', '', 'E-BILLING_04-06-2022_17-20-06.pdf', '2022-06-13', 63, '62', '1', NULL, NULL, '2022-06-04 17:20:06', '2022-06-12 00:34:31', 14, 63),
 (5, 13, '1', '', 'E-BILLING_04-06-2022_18-14-54.jpg', NULL, NULL, NULL, NULL, NULL, NULL, '2022-06-04 18:14:54', '2022-06-04 18:14:54', 14, 14);
 
 -- --------------------------------------------------------
@@ -45432,7 +45433,7 @@ ALTER TABLE `tb_profile`
 -- AUTO_INCREMENT for table `tb_status`
 --
 ALTER TABLE `tb_status`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT for table `tb_submenu`
