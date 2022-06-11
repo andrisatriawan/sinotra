@@ -54,4 +54,71 @@ class Api extends CI_Controller
 
     echo json_encode($result);
   }
+
+  public function getTiketLHU()
+  {
+  }
+
+  public function saveAdmLHU()
+  {
+    $post = $this->input->post();
+    $level = '3';
+    if ($post['password'] == '') {
+      $password = '123456';
+    } else {
+      $password = $post['password'];
+    }
+
+    $userpass = [
+      'username' => $post['username'],
+      'password' => $password
+    ];
+
+    $user = $this->User_model->saveUser($post['email'], $level, $userpass);
+
+    if ($user['status'] == 200) {
+      $simpan_profile = $this->User_model->saveProfile($post, $user['timestamp']);
+
+      echo json_encode($simpan_profile);
+    }
+  }
+
+  public function getTiketPetugas()
+  {
+    $id = $this->input->post('id');
+
+    $data = $this->Ticket_model->getAllTicket();
+    $array_data = [];
+    foreach ($data as $row) {
+      if ($id != null && $row['petugas'] == $id && $row['is_read_lhu'] != null) {
+        $array_data[] = [
+          'id_tiket' => $row['id_tiket'],
+          'id_perusahaan' => $row['id_perusahaan'],
+          'tgl_estimasi' => $row['tgl_pengujian'],
+          'petugas' => $row['petugas'],
+          'analis' => $row['analis'],
+          'is_read_lhu' => $row['is_read_lhu'],
+          'is_read_analis' => $row['is_read_analis'],
+          'is_read_lab' => $row['is_read_lab'],
+          'nama_perusahaan' => $row['nama'],
+        ];
+      }
+    }
+
+    if (count($array_data) != null) {
+      $result = [
+        'status' => 200,
+        'message' => 'success',
+        'data' => $array_data
+      ];
+    } else {
+      $result = [
+        'status' => 400,
+        'message' => 'Failed, data not found!'
+      ];
+    }
+
+
+    echo json_encode($result);
+  }
 }

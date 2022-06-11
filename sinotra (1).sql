@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 24, 2022 at 01:45 AM
+-- Generation Time: Jun 11, 2022 at 07:04 AM
 -- Server version: 10.4.8-MariaDB
 -- PHP Version: 7.3.11
 
@@ -45094,7 +45094,9 @@ INSERT INTO `tb_access_menu` (`id`, `id_menu`, `id_submenu`, `level`) VALUES
 (17, 0, 7, '5'),
 (18, 2, 0, '5'),
 (19, 2, 0, '6'),
-(20, 0, 8, '6');
+(20, 0, 8, '6'),
+(21, 0, 9, '0'),
+(22, 0, 9, '2');
 
 -- --------------------------------------------------------
 
@@ -45220,7 +45222,14 @@ INSERT INTO `tb_status` (`id`, `id_tiket`, `status`, `file`, `tgl`, `keterangan`
 (24, 1, '13', '', '2022-06-09', 'DHU ditandatangani', '2022-05-21 11:23:44', '2022-05-21 11:23:44', 16, 16),
 (25, 1, '14', '', '2022-06-10', 'Laporan dicetak dan dinomori', '2022-05-21 11:24:19', '2022-05-21 11:24:19', 16, 16),
 (26, 1, '15', 'RESI_21-05-2022_11-32-56.jpg', '2022-06-08', 'Laporan dikirim oleh petugas Balai K3 Medan Sdr. Tono', '2022-05-21 11:32:56', '2022-05-21 11:32:56', 17, 17),
-(27, 1, '16', 'BUKTI_TERIMA_21-05-2022_11-39-37.jpg', '2022-06-08', 'Laporan diterima', '2022-05-21 11:39:37', '2022-05-21 11:39:37', 13, 13);
+(27, 1, '16', 'BUKTI_TERIMA_21-05-2022_11-39-37.jpg', '2022-06-08', 'Laporan diterima', '2022-05-21 11:39:37', '2022-05-21 11:39:37', 13, 13),
+(28, 2, '0', 'E-BILLING_04-06-2022_17-17-28.pdf', '2022-06-04', 'E-Billing dikirim', '2022-06-04 17:17:29', '2022-06-04 17:17:29', 14, 14),
+(29, 3, '0', 'E-BILLING_04-06-2022_17-19-21.pdf', '2022-06-04', 'E-Billing dikirim', '2022-06-04 17:19:21', '2022-06-04 17:19:21', 14, 14),
+(30, 4, '0', 'E-BILLING_04-06-2022_17-20-06.pdf', '2022-06-04', 'E-Billing dikirim', '2022-06-04 17:20:06', '2022-06-04 17:20:06', 14, 14),
+(31, 4, '1', 'BUKTI-BAYAR_04-06-2022_17-41-37.pdf', '2022-06-04', 'Bukti bayar dikirim', '2022-06-04 17:41:38', '2022-06-04 17:41:38', 13, 13),
+(32, 4, '3', '', '2022-06-04', 'Bukti bayar diterima', '2022-06-04 17:43:02', '2022-06-04 17:43:02', 14, 14),
+(33, 5, '0', 'E-BILLING_04-06-2022_18-14-54.jpg', '2022-06-04', 'E-Billing dikirim', '2022-06-04 18:14:54', '2022-06-04 18:14:54', 14, 14),
+(34, 4, '4', '', '2022-06-10', 'Tanggal pelaksanaan ditetapkan', '2022-06-10 23:54:40', '2022-06-10 23:54:40', 15, 15);
 
 -- --------------------------------------------------------
 
@@ -45247,7 +45256,8 @@ INSERT INTO `tb_submenu` (`id_submenu`, `id_menu`, `submenu`, `link`) VALUES
 (5, 2, 'Surat Tugas', 'tracking/surat_tugas'),
 (6, 2, 'Pengujian', 'tracking/all_pengujian'),
 (7, 2, 'Estimasi Tanggal', 'tracking/tglPengujian'),
-(8, 2, 'Laporan Pengujian', 'tracking/laporan');
+(8, 2, 'Laporan Pengujian', 'tracking/laporan'),
+(9, 2, 'Semua Pengujian', 'tracking/all');
 
 -- --------------------------------------------------------
 
@@ -45264,6 +45274,9 @@ CREATE TABLE `tb_tiket` (
   `tgl_pengujian` date DEFAULT NULL,
   `petugas` int(11) DEFAULT NULL,
   `analis` varchar(100) DEFAULT NULL,
+  `is_read_lhu` enum('0','1') DEFAULT NULL,
+  `is_read_analis` enum('0','1') DEFAULT NULL,
+  `is_read_lab` enum('0','1') DEFAULT NULL,
   `date_created` datetime NOT NULL,
   `date_updated` datetime NOT NULL,
   `created_by` int(11) NOT NULL,
@@ -45274,8 +45287,10 @@ CREATE TABLE `tb_tiket` (
 -- Dumping data for table `tb_tiket`
 --
 
-INSERT INTO `tb_tiket` (`id_tiket`, `id_perusahaan`, `pengujian`, `no_ebilling`, `file_ebilling`, `tgl_pengujian`, `petugas`, `analis`, `date_created`, `date_updated`, `created_by`, `updated_by`) VALUES
-(1, 13, 'Keselamatan Kerja', '', 'E-BILLING_20-05-2022_23-36-49.pdf', '2022-05-30', 16, 'Analis', '2022-05-20 23:36:49', '2022-05-20 23:36:49', 14, 15);
+INSERT INTO `tb_tiket` (`id_tiket`, `id_perusahaan`, `pengujian`, `no_ebilling`, `file_ebilling`, `tgl_pengujian`, `petugas`, `analis`, `is_read_lhu`, `is_read_analis`, `is_read_lab`, `date_created`, `date_updated`, `created_by`, `updated_by`) VALUES
+(1, 13, 'Keselamatan Kerja', '', 'E-BILLING_20-05-2022_23-36-49.pdf', '2022-05-30', 16, 'Analis', '0', NULL, NULL, '2022-05-20 23:36:49', '2022-05-20 23:36:49', 14, 15),
+(4, 13, '1,2,3', '', 'E-BILLING_04-06-2022_17-20-06.pdf', '2022-06-13', 29, '62', '0', NULL, NULL, '2022-06-04 17:20:06', '2022-06-10 23:54:42', 14, 15),
+(5, 13, '1', '', 'E-BILLING_04-06-2022_18-14-54.jpg', NULL, NULL, NULL, NULL, NULL, NULL, '2022-06-04 18:14:54', '2022-06-04 18:14:54', 14, 14);
 
 -- --------------------------------------------------------
 
@@ -45303,7 +45318,7 @@ CREATE TABLE `tb_users` (
 INSERT INTO `tb_users` (`id_user`, `username`, `email`, `password`, `pass_view`, `level`, `date_created`, `date_updated`, `created_by`, `updated_by`) VALUES
 (1, 'superadmin', 'superadmin@balaik3medan.com', 'e10adc3949ba59abbe56e057f20f883e', '123456', '0', '2022-04-24 00:00:00', '2022-04-24 00:00:00', 1, 1),
 (12, 'adm_surat', 'surat@sinotra', 'e10adc3949ba59abbe56e057f20f883e', '123456', '1', '2022-05-20 22:52:32', '2022-05-20 22:52:32', 1, 1),
-(13, 'ptcocacolacompany', 'cocacola@gmail.com', 'e10adc3949ba59abbe56e057f20f883e', '123456', '4', '2022-05-20 22:55:39', '2022-05-20 22:55:39', 12, 12),
+(13, 'test', 'cocacola@gmail.com', 'e10adc3949ba59abbe56e057f20f883e', '123456', '4', '2022-05-20 22:55:39', '2022-05-20 22:55:39', 12, 12),
 (14, 'bendahara', 'bendahara@sinotra', 'e10adc3949ba59abbe56e057f20f883e', '123456', '2', '2022-05-20 23:02:46', '2022-05-20 23:02:46', 12, 12),
 (15, 'manager_teknis', 'manager@sinotra', 'e10adc3949ba59abbe56e057f20f883e', '123456', '5', '2022-05-21 00:21:30', '2022-05-21 00:21:30', 12, 12),
 (16, 'adm_lhu', 'laporan@sinotra', 'e10adc3949ba59abbe56e057f20f883e', '123456', '3', '2022-05-21 02:44:25', '2022-05-21 02:44:25', 12, 12),
@@ -45393,7 +45408,7 @@ ALTER TABLE `tb_users`
 -- AUTO_INCREMENT for table `tb_access_menu`
 --
 ALTER TABLE `tb_access_menu`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `tb_menu`
@@ -45417,19 +45432,19 @@ ALTER TABLE `tb_profile`
 -- AUTO_INCREMENT for table `tb_status`
 --
 ALTER TABLE `tb_status`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT for table `tb_submenu`
 --
 ALTER TABLE `tb_submenu`
-  MODIFY `id_submenu` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id_submenu` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `tb_tiket`
 --
 ALTER TABLE `tb_tiket`
-  MODIFY `id_tiket` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_tiket` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `tb_users`
