@@ -96,6 +96,7 @@ class Api extends CI_Controller
           'id_perusahaan' => $row['id_perusahaan'],
           'tgl_estimasi' => $row['tgl_pengujian'],
           'petugas' => $row['petugas'],
+          'pengujian' => $row['pengujian'],
           'analis' => $row['analis'],
           'is_read_lhu' => $row['is_read_lhu'],
           'is_read_analis' => $row['is_read_analis'],
@@ -118,6 +119,70 @@ class Api extends CI_Controller
       ];
     }
 
+    echo json_encode($result);
+  }
+
+  public function saveStatus()
+  {
+    $post = $this->input->post();
+    $data = [
+      'id_tiket' => $post['id_tiket'],
+      'status' => $post['status'],
+      'tgl' => $post['tgl'],
+      'keterangan' => $post['keterangan'],
+      'id_user' => $post['id_user'],
+    ];
+
+    if ($post['status'] == '6') {
+      $data_update = [
+        'id_tiket' => $post['id_tiket'],
+        'is_read_lhu' => '1',
+        'updated_by' => $post['id_user']
+      ];
+      $this->Ticket_model->updateTiket($data_update);
+    } elseif ($post['status'] == '7') {
+      $data_update = [
+        'id_tiket' => $post['id_tiket'],
+        'is_read_lab' => '0',
+        'updated_by' => $post['id_user']
+      ];
+      $this->Ticket_model->updateTiket($data_update);
+    } elseif ($post['status'] == '8') {
+      $data_update = [
+        'id_tiket' => $post['id_tiket'],
+        'is_read_lab' => '1',
+        'updated_by' => $post['id_user']
+      ];
+      $this->Ticket_model->updateTiket($data_update);
+    } elseif ($post['status'] == '9') {
+      $data_update = [
+        'id_tiket' => $post['id_tiket'],
+        'is_read_analis' => '0',
+        'updated_by' => $post['id_user']
+      ];
+      $this->Ticket_model->updateTiket($data_update);
+    } elseif ($post['status'] == '10') {
+      $data_update = [
+        'id_tiket' => $post['id_tiket'],
+        'is_read_analis' => '1',
+        'updated_by' => $post['id_user']
+      ];
+      $this->Ticket_model->updateTiket($data_update);
+    }
+
+    $simpan = $this->Ticket_model->saveStatusAPI($data, '');
+
+    if ($simpan) {
+      $result = [
+        'status' => 200,
+        'message' => 'succes'
+      ];
+    } else {
+      $result = [
+        'status' => 400,
+        'message' => 'failed'
+      ];
+    }
 
     echo json_encode($result);
   }

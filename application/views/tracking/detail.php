@@ -121,7 +121,7 @@
   } else if ($status_now['status'] >= 5 && $status_now['status'] < 7) {
     $tgl_pengujian = date('Ymd', strtotime($tiket['tgl_pengujian']));
     $tgl_now = date('Ymd');
-    if ($tgl_pengujian <= $tgl_now) {
+    if ($tgl_pengujian <= $tgl_now || $status_now['status'] == 6) {
       $bg_billing = 'bg-primary';
       $bg_tgl = 'bg-primary';
       $bg_pengujian = 'bg-warning';

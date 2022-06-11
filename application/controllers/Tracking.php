@@ -617,7 +617,7 @@ class Tracking extends CI_Controller
   public function getPetugas()
   {
     // $data = $this->User_model->getPetugas();
-    $url = 'http://simpelkan.org/api/index.php?page=getAdminLHU';
+    $url = $this->simpelkan['url'] . 'getAdminLHU';
     $admin = file_get_contents($url);
 
     $data = json_decode($admin, true);
@@ -664,8 +664,8 @@ class Tracking extends CI_Controller
       'petugas' => $post['petugas'],
       'analis' => $post['analis'],
       'is_read_lhu' => '0',
+      'updated_by' => $this->session->userdata('id_user')
     ];
-
     $simpan = $this->Ticket_model->saveStatus($data, '');
     $update = $this->Ticket_model->updateTiket($data_tiket);
 
