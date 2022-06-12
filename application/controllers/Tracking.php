@@ -203,7 +203,7 @@ class Tracking extends CI_Controller
         $array_pengujian = explode(',', $row['pengujian']);
         $pengujian = '';
         foreach ($array_pengujian as $row_peng) {
-          $nama = $this->jenis_pengujian[$row_peng];
+          $nama = $this->jenis_pengujian[$row_peng - 1];
           $pengujian .= "<span class='badge bg-primary'>$nama[name]</span> ";
         }
         $result .= "<tr>
@@ -387,7 +387,7 @@ class Tracking extends CI_Controller
       $array_pengujian = explode(',', $row['pengujian']);
       $pengujian = '';
       foreach ($array_pengujian as $row_peng) {
-        $nama = $this->jenis_pengujian[$row_peng];
+        $nama = $this->jenis_pengujian[$row_peng - 1];
         $pengujian .= "<span class='badge bg-primary'>$nama[name]</span> ";
       }
       $result .= "<tr>
@@ -587,7 +587,7 @@ class Tracking extends CI_Controller
         $array_pengujian = explode(',', $row['pengujian']);
         $pengujian = '';
         foreach ($array_pengujian as $row_peng) {
-          $nama = $this->jenis_pengujian[$row_peng];
+          $nama = $this->jenis_pengujian[$row_peng - 1];
           $pengujian .= "<span class='badge bg-primary'>$nama[name]</span> ";
         }
         $result .= "<tr>
@@ -812,7 +812,7 @@ class Tracking extends CI_Controller
           $array_pengujian = explode(',', $row['pengujian']);
           $pengujian = '';
           foreach ($array_pengujian as $row_peng) {
-            $nama = $this->jenis_pengujian[$row_peng];
+            $nama = $this->jenis_pengujian[$row_peng - 1];
             $pengujian .= "<span class='badge bg-primary'>$nama[name]</span> ";
           }
           $result .= "<tr>
@@ -985,7 +985,7 @@ class Tracking extends CI_Controller
         $array_pengujian = explode(',', $row['pengujian']);
         $pengujian = '';
         foreach ($array_pengujian as $row_peng) {
-          $nama = $this->jenis_pengujian[$row_peng];
+          $nama = $this->jenis_pengujian[$row_peng - 1];
           $pengujian .= "<span class='badge bg-primary'>$nama[name]</span> ";
         }
         $result .= "<tr>
@@ -1046,7 +1046,7 @@ class Tracking extends CI_Controller
         $array_pengujian = explode(',', $row['pengujian']);
         $pengujian = '';
         foreach ($array_pengujian as $row_peng) {
-          $nama = $this->jenis_pengujian[$row_peng];
+          $nama = $this->jenis_pengujian[$row_peng - 1];
           $pengujian .= "<span class='badge bg-primary'>$nama[name]</span> ";
         }
         $result .= "<tr>
@@ -1201,7 +1201,7 @@ class Tracking extends CI_Controller
       $array_pengujian = explode(',', $row['pengujian']);
       $pengujian = '';
       foreach ($array_pengujian as $row_peng) {
-        $nama = $this->jenis_pengujian[$row_peng];
+        $nama = $this->jenis_pengujian[$row_peng - 1];
         $pengujian .= "<span class='badge bg-primary'>$nama[name]</span> ";
       }
       $result .= "<tr>
