@@ -122,6 +122,29 @@ class Api extends CI_Controller
     echo json_encode($result);
   }
 
+  public function getTiketPetugasById()
+  {
+    $idTiket = $this->input->post('id_tiket');
+
+    $data = $this->Ticket_model->getTicketByID($idTiket);
+    $array_data = $data ?? [];
+
+    if (count($array_data) != null) {
+      $result = [
+        'status' => 200,
+        'message' => 'success',
+        'data' => $array_data
+      ];
+    } else {
+      $result = [
+        'status' => 400,
+        'message' => 'Failed, data not found!'
+      ];
+    }
+
+    echo json_encode($result);
+  }
+
   public function saveStatus()
   {
     $post = $this->input->post();
