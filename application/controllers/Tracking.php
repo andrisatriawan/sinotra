@@ -558,6 +558,13 @@ class Tracking extends CI_Controller
     $this->_template('tracking/detail', $data);
   }
 
+  public function getTicketByID($id)
+  {
+    $data = $this->Ticket_model->getTicketByID($id);
+
+    echo json_encode($data);
+  }
+
   public function surat_tugas()
   {
     $data['page'] = 'Surat Tugas';
@@ -925,6 +932,43 @@ class Tracking extends CI_Controller
     $this->_template('tracking/tglPengujian', $data);
   }
 
+  public function updateAdmin()
+  {
+    $post = $this->input->post();
+
+    $data = [
+      'petugas' => $post['petugas'],
+      'id_tiket' => $post['id_tiket'],
+      'analis' => $post['analis'],
+    ];
+
+    $update = $this->Ticket_model->updateTiket($data);
+
+    if ($update) {
+      $result = [
+        'status' => 200,
+        'message' => 'success',
+        'data' => [
+          'header' => 'Berhasil...',
+          'body' => 'Admin berhasil diubah',
+          'status' => 'success'
+        ]
+      ];
+    } else {
+      $result = [
+        'status' => 400,
+        'message' => 'success',
+        'data' => [
+          'header' => 'Gagal...',
+          'body' => 'Admin gagal diubah',
+          'status' => 'error'
+        ]
+      ];
+    }
+
+    echo json_encode($result);
+  }
+
   public function getAllTiketPengujian()
   {
     $data = $this->Ticket_model->getAllTicket();
@@ -932,7 +976,7 @@ class Tracking extends CI_Controller
     $no = 1;
     foreach ($data as $row) {
       $status = $this->Ticket_model->getStatusByTicketDesc($row['id_tiket']);
-      if ($status['status'] == '3' || $status['status'] == '4') {
+      if ($status['status'] >= '3') {
         $url = base_url('index.php/tracking/detail/') . $row['id_tiket'];
         if ($status['status'] == 3) {
           $tgl = "<span class='badge rounded-pill bg-warning'>Estimasi tanggal belum ditetapkan</span>";
@@ -978,7 +1022,16 @@ class Tracking extends CI_Controller
           $user_analis = json_decode($apiAnalis, true);
           $admin_lhu = $user_lhu['data']['nama'];
           $analis = $user_analis['data']['nama'];
-          $aksi = "<a class='action-icon' href='$url' data-bs-toggle='tooltip' data-bs-placement='bottom' title='Tracking'><i class='uil-location-arrow'></i></a>";
+          $aksi = "<div class='btn-group' role='group'>
+                      <button id='aksi' type='button' class='btn btn-sm dropdown-toggle' data-bs-toggle='dropdown' aria-expanded='false'>
+                      Pilih
+                      </button>
+                      <ul class='dropdown-menu' aria-labelledby='aksi'>
+                        <li><button class='dropdown-item' data-bs-toggle='modal' data-bs-id='$row[id_tiket]' data-bs-target='#modal-edit-admin'><i class='mdi mdi-account-multiple'></i> Ubah Admin</button></li>
+                        <li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>
+                      </ul>
+                    </div>";
+          // $aksi = "<a class='action-icon' href='$url' data-bs-toggle='tooltip' data-bs-placement='bottom' title='Tracking'><i class='uil-location-arrow'></i></a>";
           // $aksi = "<a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a>";
         }
         $view_status = $this->status[$status['status']];

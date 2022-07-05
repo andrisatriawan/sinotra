@@ -145,6 +145,43 @@ class Api extends CI_Controller
     echo json_encode($result);
   }
 
+  public function getTicketForCode()
+  {
+    $data = $this->Ticket_model->getAllTicket();
+    $array_data = [];
+    foreach ($data as $row) {
+      if ($row['is_read_lab'] == '0') {
+        $array_data[] = [
+          'id_tiket' => $row['id_tiket'],
+          'id_perusahaan' => $row['id_perusahaan'],
+          'tgl_estimasi' => $row['tgl_pengujian'],
+          'petugas' => $row['petugas'],
+          'pengujian' => $row['pengujian'],
+          'analis' => $row['analis'],
+          'is_read_lhu' => $row['is_read_lhu'],
+          'is_read_analis' => $row['is_read_analis'],
+          'is_read_lab' => $row['is_read_lab'],
+          'nama_perusahaan' => $row['nama'],
+        ];
+      }
+    }
+
+    if (count($array_data) != null) {
+      $result = [
+        'status' => 200,
+        'message' => 'success',
+        'data' => $array_data
+      ];
+    } else {
+      $result = [
+        'status' => 400,
+        'message' => 'Failed, data not found!'
+      ];
+    }
+
+    echo json_encode($result);
+  }
+
   public function saveStatus()
   {
     $post = $this->input->post();
@@ -162,43 +199,50 @@ class Api extends CI_Controller
         'is_read_lhu' => '1',
         'updated_by' => $post['id_user']
       ];
-      $this->Ticket_model->updateTiket($data_update);
+      $update = $this->Ticket_model->updateTiket($data_update);
     } elseif ($post['status'] == '7') {
       $data_update = [
         'id_tiket' => $post['id_tiket'],
         'is_read_lab' => '0',
         'updated_by' => $post['id_user']
       ];
-      $this->Ticket_model->updateTiket($data_update);
+      $update = $this->Ticket_model->updateTiket($data_update);
     } elseif ($post['status'] == '8') {
       $data_update = [
         'id_tiket' => $post['id_tiket'],
         'is_read_lab' => '1',
         'updated_by' => $post['id_user']
       ];
-      $this->Ticket_model->updateTiket($data_update);
+      $update = $this->Ticket_model->updateTiket($data_update);
     } elseif ($post['status'] == '9') {
       $data_update = [
         'id_tiket' => $post['id_tiket'],
         'is_read_analis' => '0',
         'updated_by' => $post['id_user']
       ];
-      $this->Ticket_model->updateTiket($data_update);
+      $update = $this->Ticket_model->updateTiket($data_update);
     } elseif ($post['status'] == '10') {
       $data_update = [
         'id_tiket' => $post['id_tiket'],
         'is_read_analis' => '1',
         'updated_by' => $post['id_user']
       ];
-      $this->Ticket_model->updateTiket($data_update);
+      $update = $this->Ticket_model->updateTiket($data_update);
     }
 
     $simpan = $this->Ticket_model->saveStatusAPI($data, '');
 
-    if ($simpan) {
+    // $result = [
+    //   'status' => 200,
+    //   'message' => 'succes',
+    //   'data' => $data_update
+    // ];
+
+    if ($simpan && $update) {
       $result = [
         'status' => 200,
-        'message' => 'succes'
+        'message' => 'succes',
+        'data' => $data_update
       ];
     } else {
       $result = [

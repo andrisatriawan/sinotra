@@ -102,6 +102,38 @@
   </div>
 </div>
 
+<!-- Modal Tanggal -->
+<div class="modal fade" id="modal-edit-admin" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modal-edit-adminLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modal-edit-adminLabel">Ubah Admin</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form class="row g-3 needs-validation" id="form-ubah-admin" novalidate>
+          <div class="col-md-12">
+            <label for="petugas-ubah" class="form-label">Admin LHU</label>
+            <select id="petugas-ubah" class="form-control select2 petugas-ubah" required>
+              <option value="" selected disabled>Pilih salah satu</option>
+            </select>
+          </div>
+          <div class="col-xl-12">
+            <label for="analis-ubah" class="form-label">Analis</label>
+            <select id="analis-ubah" class="form-control select2" required>
+              <option value="" selected disabled>Pilih salah satu</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary ubah-admin" id="ubah-admin">Kirim</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
   function tampil() {
     var url = "<?= base_url('index.php/tracking/getAllTiketPengujian') ?>"
@@ -126,7 +158,8 @@
       dataType: "HTML",
       url: url,
       success: function(data) {
-        $('#petugas').html(data)
+        $('.petugas-ubah').html(data);
+        $('#petugas').html(data);
       }
     })
   }
@@ -139,7 +172,49 @@
       dataType: "HTML",
       url: url,
       success: function(data) {
+        $('#analis-ubah').html(data)
         $('#analis').html(data)
+      }
+    })
+  }
+
+  function getDataTiket(id = null) {
+    var url = `<?= base_url('index.php/tracking/getTicketByID/') ?>${id}`;
+
+    $.ajax({
+      type: "POST",
+      dataType: "JSON",
+      url: url,
+      success: function(data) {
+        $("#id_tiket").val(data.id_tiket);
+        $("#petugas-ubah").val(data.petugas).change();
+        $("#analis-ubah").val(data.analis).change();
+      }
+    })
+  }
+
+  function updateAdmin() {
+    var url = `<?= base_url('index.php/tracking/updateAdmin') ?>`;
+    $.ajax({
+      type: "POST",
+      dataType: "JSON",
+      url: url,
+      data: {
+        'id_tiket': $("#id_tiket").val(),
+        'petugas': $(".petugas-ubah").val(),
+        'analis': $("#analis-ubah").val()
+      },
+      success: function(data) {
+        sweetAlert(data.data.header, data.data.body, data.data.status, {
+          button: null
+        });
+        if (data.status == 200) {
+          tampil();
+          $("#modal-edit-admin").modal('hide');
+          $('.ubah-admin').removeAttr('disabled');
+        } else {
+          $('.ubah-admin').removeAttr('disabled');
+        }
       }
     })
   }
@@ -151,6 +226,10 @@
 
   $('.select2').select2({
     dropdownParent: $('#modal-tgl')
+  })
+
+  $('.select2').select2({
+    dropdownParent: $('#modal-edit-admin')
   })
 
   function simpan_tgl() {
@@ -189,6 +268,14 @@
   var label = {
     '4': 'Estimasi Tanggal Pengujian',
   }
+
+  var modal_edit = document.getElementById('modal-edit-admin')
+  modal_edit.addEventListener('show.bs.modal', function(event) {
+    var button = event.relatedTarget
+    var id = button.getAttribute('data-bs-id')
+    getDataTiket(id);
+    console.log(id);
+  });
 
   var modal_tgl = document.getElementById('modal-tgl')
   modal_tgl.addEventListener('show.bs.modal', function(event) {
@@ -238,6 +325,29 @@
           } else {
             $('#btn-tgl').attr('disabled', true);
             simpan_tgl()
+          }
+
+          form.classList.add('was-validated')
+        }, false)
+      })
+  })();
+
+  (function() {
+    'use strict'
+    var forms = document.querySelectorAll('#form-ubah-admin.needs-validation')
+    var btn_simpan = document.getElementById('ubah-admin')
+
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms)
+      .forEach(function(form) {
+        btn_simpan.addEventListener('click', function(event) {
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          } else {
+            $('.ubah-admin').attr('disabled', true);
+            updateAdmin();
+            // simpan_tgl()
           }
 
           form.classList.add('was-validated')
