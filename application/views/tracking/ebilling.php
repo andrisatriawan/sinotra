@@ -38,6 +38,7 @@
                   <th>No</th>
                   <th>Perusahaan</th>
                   <th>Pengujian</th>
+                  <th>Tanggal Kadaluarsa</th>
                   <th>Status</th>
                   <th>E-Billing</th>
                   <th>Aksi</th>
@@ -56,7 +57,7 @@
 
 <!-- Modal Akun -->
 <div class="modal fade" id="modal-tiket" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="modal-tiketLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="modal-tiketLabel">Modal title</h5>
@@ -90,6 +91,10 @@
           <div class="col-md-12">
             <label for="file_ebilling" class="form-label">File E-Billing</label>
             <input type="file" class="form-control" id="file_ebilling" placeholder="File E-Billing" accept="application/pdf, image/*" required>
+          </div>
+          <div class="col-md-12">
+            <label for="tgl_kadaluarsa" class="form-label">Tanggal Kadaluarsa</label>
+            <input type="date" class="form-control" id="tgl_kadaluarsa" required>
           </div>
           <div class="mb-0 text-center">
             <button class="btn btn-primary text-white" type="button" id="btn-simpan"><i class="mdi mdi-content-save"></i> Simpan </button>
@@ -171,6 +176,34 @@
   </div>
 </div>
 
+<!-- Modal Upload ulang e-billing -->
+<div class="modal fade" id="reupload-billing" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="reupload-billingLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="reupload-billingLabel">Upload ulang e-Billing</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form class="row g-3 needs-validation" id="form-reupload" novalidate>
+          <input type="hidden" id="id_tiket">
+          <div class="col-md-12">
+            <label for="file_ebilling" class="form-label">File E-Billing</label>
+            <input type="file" class="form-control" id="file_ebilling_reupload" placeholder="File E-Billing" accept="application/pdf, image/*" required>
+          </div>
+          <div class="col-md-12">
+            <label for="tgl_kadaluarsa" class="form-label">Tanggal Kadaluarsa</label>
+            <input type="date" class="form-control" id="tgl_kadaluarsa_reupload" required>
+          </div>
+          <div class="mb-0 text-center">
+            <button class="btn btn-primary text-white" id="btn-reupload" type="button"><i class="mdi mdi-content-save"></i> Simpan </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
   function tampil() {
     var url = "<?= base_url('index.php/tracking/get_ticket') ?>"
@@ -210,12 +243,14 @@
     var url = "<?= base_url('index.php/tracking/save') ?>"
     var perusahaan = $("#perusahaan").val()
     var pengujian = $("#pengujian").val()
+    var tgl_kadaluarsa = $("#tgl_kadaluarsa").val()
     var no_ebilling = $("#no_ebilling").val()
     var file_ebilling = $("#file_ebilling").prop('files')[0]
 
     var form_data = new FormData();
     form_data.append('perusahaan', perusahaan);
     form_data.append('pengujian', pengujian);
+    form_data.append('tgl_kadaluarsa', tgl_kadaluarsa);
     form_data.append('no_ebilling', no_ebilling);
     form_data.append('file_ebilling', file_ebilling);
 
@@ -294,6 +329,41 @@
     })
   }
 
+  function reupload() {
+    var url = "<?= base_url('index.php/tracking/reupload') ?>"
+    var id_tiket = $("#id_tiket").val()
+    var tgl_kadaluarsa = $("#tgl_kadaluarsa_reupload").val()
+    var file_ebilling = $("#file_ebilling_reupload").prop('files')[0]
+
+    var form_data = new FormData();
+    form_data.append('id_tiket', id_tiket);
+    form_data.append('tgl_kadaluarsa', tgl_kadaluarsa);
+    form_data.append('file_ebilling', file_ebilling);
+
+    $.ajax({
+      type: "POST",
+      dataType: "JSON",
+      url: url,
+      processData: false,
+      contentType: false,
+      cache: false,
+      enctype: 'multipart/form-data',
+      data: form_data,
+      success: function(data) {
+        sweetAlert(data.data.header, data.data.body, data.data.status, {
+          button: null
+        });
+        if (data.status == 200) {
+          tampil();
+          $("#reupload-billing").modal('hide');
+          $('#btn-reuload').removeAttr('disabled');
+        } else {
+          $('#btn-reuload').removeAttr('disabled');
+        }
+      }
+    })
+  }
+
   var modal_tiket = document.getElementById('modal-tiket')
   modal_tiket.addEventListener('show.bs.modal', function(event) {
     var button = event.relatedTarget
@@ -349,6 +419,13 @@
     $("#id_tiket_terima").val(id);
   });
 
+  var modal_reupload = document.getElementById('reupload-billing')
+  modal_reupload.addEventListener('show.bs.modal', function(event) {
+    var button = event.relatedTarget
+    var id = button.getAttribute('data-bs-id')
+    $("#id_tiket").val(id);
+  });
+
   (function() {
     'use strict'
     var forms = document.querySelectorAll('.needs-validation')
@@ -390,6 +467,27 @@
           } else {
             $('#btn-tolak').attr('disabled', true);
             tolak()
+          }
+
+          form.classList.add('was-validated')
+        }, false)
+      })
+  })();
+
+  (function() {
+    'use strict'
+    var forms = document.querySelectorAll('#form-reupload.needs-validation')
+    var btn_tolak = document.getElementById('btn-reupload')
+
+    Array.prototype.slice.call(forms)
+      .forEach(function(form) {
+        btn_tolak.addEventListener('click', function(event) {
+          if (!form.checkValidity()) {
+            event.preventDefault()
+            event.stopPropagation()
+          } else {
+            $('#btn-reupload').attr('disabled', true);
+            reupload()
           }
 
           form.classList.add('was-validated')

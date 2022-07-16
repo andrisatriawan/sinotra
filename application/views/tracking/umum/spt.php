@@ -86,6 +86,20 @@
             <label for="file" class="form-label">Surat Tugas</label>
             <input type="file" class="form-control" id="file" placeholder="File SPT" accept="application/pdf, image/*" required>
           </div>
+          <div class="col-md-12">
+            <label for="petugas" class="form-label">Petugas <sup>*</sup></label>
+            <select class="select2 form-control select2-multiple" id="petugas" data-toggle="select2" multiple="multiple" data-placeholder="Pilih ...">
+              <?php
+              foreach ($petugas as $row) {
+              ?>
+                <option value="<?= $row['id'] ?>"><?= $row['nama'] ?></option>
+              <?php
+              }
+
+              ?>
+            </select>
+            <small class="small text-danger"><sup>*</sup>Sesuai dengan SPT</small>
+          </div>
         </form>
       </div>
       <div class="modal-footer">
@@ -123,11 +137,13 @@
 
     var id_tiket = $('#id_tiket').val()
     var tipe = $('#tipe').val()
+    var petugas = $('#petugas').val()
     var file = $('#file').prop('files')[0]
 
     var form_data = new FormData()
     form_data.append('id_tiket', id_tiket)
     form_data.append('tipe', tipe)
+    form_data.append('petugas', petugas)
     form_data.append('file', file)
 
     $.ajax({
@@ -145,12 +161,28 @@
         });
         if (data.status == 200) {
           tampil();
+          $("#petugas").val();
           $("#modal-spt").modal('hide');
         } else {
           $('#btn-simpan').removeAttr('disabled');
         }
       }
     })
+  }
+
+  function getPetugas(id) {
+    var url = '<?= base_url('index.php/tracking/getTicketByID/') ?>' + id;
+    $.ajax({
+      dataType: "JSON",
+      type: "POST",
+      url: url,
+      success: function(data) {
+        var petugas = data.petugas;
+        var arr_petugas = petugas.split(',');
+        $("#petugas").val(arr_petugas).change();
+      }
+    })
+
   }
 
   var modal_spt = document.getElementById('modal-spt')
@@ -160,6 +192,11 @@
     var tipe = button.getAttribute('data-tipe')
     $('#id_tiket').val(id);
     $('#tipe').val(tipe);
+    if (tipe != 1) {
+      $("#petugas").val("").change();
+    } else {
+      getPetugas(id);
+    }
     $('#file').val("");
     $('.was-validated').removeClass('was-validated');
     $('#btn-simpan').removeAttr('disabled');

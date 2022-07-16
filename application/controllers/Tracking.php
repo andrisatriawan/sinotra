@@ -17,6 +17,7 @@ class Tracking extends CI_Controller
     $this->load->model('Perusahaan_model');
     $this->load->model('Menu_model');
     $this->load->model('Ticket_model');
+    $this->load->model('Billing_model', 'billing');
 
     $this->simpelkan = ['url' => 'http://localhost/simpelkan/api/index.php?page='];
 
@@ -175,6 +176,8 @@ class Tracking extends CI_Controller
     $no = 1;
     foreach ($data as $row) {
       $status = $this->Ticket_model->getStatusByTicketDesc($row['id_tiket']);
+      $billing = $this->billing->getBillingByIDTiketDesc($row['id_tiket']);
+
       if ($status['status'] <= 3) {
         $url = base_url('index.php/tracking/detail/') . $row['id_tiket'];
         if ($status['status'] == 1) {
@@ -199,7 +202,23 @@ class Tracking extends CI_Controller
           $color = 'warning';
           $aksi = "<a class='action-icon' href='$url' data-bs-toggle='tooltip' data-bs-placement='bottom' title='Tracking'><i class='uil-location-arrow'></i></a>";
         }
-        $status = $this->status[$status['status']];
+
+        if ($billing != null) {
+          $date_billing = date('Ymd', strtotime($billing['tgl_kadaluarsa']));
+          if (date('Ymd') >= $date_billing && $status['status'] < 1) {
+            $tgl_kadaluarsa = "<span class='badge bg-danger'>$billing[tgl_kadaluarsa]</span> ";
+            $color = 'danger';
+            $status = 'Billing telah kadaluarsa';
+            $aksi = "<button class='dropdown-item' data-bs-toggle='modal' data-bs-id='$row[id_tiket]' data-bs-target='#reupload-billing'><i class='mdi mdi-upload'></i> Upload ulang e-Billing</button>";
+          } else {
+            $status = $this->status[$status['status']];
+            $tgl_kadaluarsa = "<span class='badge bg-success'>$billing[tgl_kadaluarsa]</span> ";
+          }
+        } else {
+          $tgl_kadaluarsa = '';
+          $status = $this->status[$status['status']];
+        }
+
         $array_pengujian = explode(',', $row['pengujian']);
         $pengujian = '';
         foreach ($array_pengujian as $row_peng) {
@@ -210,6 +229,7 @@ class Tracking extends CI_Controller
                   <td>$no</td>
                   <td>$row[nama]</td>
                   <td width='300px'>$pengujian</td>
+                  <td width='300px'>$tgl_kadaluarsa</td>
                   <td><span class='badge rounded-pill bg-$color'>$status</span></td>
                   <td>
                   <a href='#' class='action-icon' data-date-upload='$row[date_created]' data-bs-file='$row[file_ebilling]' data-bs-toggle='modal' data-bs-target='#iframe-modal' data-bs-toggle='tooltip' data-bs-placement='bottom' title='Lihat'> <i class='mdi mdi-eye-outline'></i></a>
@@ -222,6 +242,47 @@ class Tracking extends CI_Controller
       }
     }
     echo $result;
+  }
+
+  function reupload()
+  {
+    $post = $this->input->post();
+    $dir = 'assets/files/';
+    $date = date("d-m-Y_H-i-s");
+    $file_name = "E-BILLING_$date";
+
+    if (isset($_FILES['file_ebilling'])) {
+      $upload = $this->uploadFile($dir, $file_name, 'file_ebilling');
+      if ($upload['status'] != 200) {
+        echo json_encode($upload);
+        // echo json_encode($_FILES['file_ebilling']);
+        exit;
+      } else {
+        $file_name = $upload['name'];
+      }
+    } else {
+      $file_name = 'default.jpg';
+    }
+
+    $data = [
+      'id_tiket' => $post['id_tiket'],
+      'file' => $file_name,
+      'tgl_kadaluarsa' => $post['tgl_kadaluarsa'],
+      'date_created' => date('Y-m-d H:i:s'),
+      'created_by' => $this->session->userdata('id_user')
+    ];
+
+    $data_update = [
+      'id_tiket' => $post['id_tiket'],
+      'file_ebilling' => $file_name
+    ];
+
+    $simpan = $this->billing->save($data);
+    if ($simpan['status'] == 200) {
+      $this->Ticket_model->updateTiket($data_update);
+    }
+
+    echo json_encode($simpan);
   }
 
   public function getPerusahaan()
@@ -306,8 +367,17 @@ class Tracking extends CI_Controller
     } else {
       $file_name = 'default.jpg';
     }
+    $post = $this->input->post();
+    $simpan = $this->Ticket_model->saveTicket($post, $file_name);
+    $data_billing = [
+      'id_tiket' => $simpan['id_tiket'],
+      'file' => $file_name,
+      'tgl_kadaluarsa' => $post['tgl_kadaluarsa'],
+      'date_created' => date('Y-m-d H:i:s'),
+      'created_by' => $this->session->userdata('id_user')
+    ];
 
-    $simpan = $this->Ticket_model->saveTicket($this->input->post(), $file_name);
+    $simpan = $this->billing->save($data_billing);
 
     echo json_encode($simpan);
   }
@@ -328,17 +398,42 @@ class Tracking extends CI_Controller
     foreach ($data as $row) {
       $url = base_url('index.php/tracking/detail/') . $row['id_tiket'];
       $status = $this->Ticket_model->getStatusByTicketDesc($row['id_tiket']);
+      $view_status = $this->status[$status['status']];
       if ($status['status'] == 0) {
-        $color = 'warning';
-        $aksi = "<div class='btn-group dropstart' role='group'>
-                      <button id='aksi' type='button' class='btn btn-sm dropdown-toggle' data-bs-toggle='dropdown' aria-expanded='false'>
-                      Pilih
-                      </button>
-                      <ul class='dropdown-menu' aria-labelledby='aksi'>
-                      <li><button class='dropdown-item' data-bs-toggle='modal' data-bs-id='$row[id_tiket]' data-bs-target='#modal-pembayaran'><i class='mdi mdi-ticket-confirmation-outline'></i> Upload Bukti Pembayaran</button></li>
-                <li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>
-                </ul>
-                    </div>";
+        $billing = $this->billing->getBillingByIDTiketDesc($row['id_tiket']);
+        $date_billing = date('Ymd', strtotime($billing['tgl_kadaluarsa']));
+        if ($billing != null) {
+          if (date('Ymd') >= $date_billing && $status['status'] < 1) {
+            $tgl_kadaluarsa = "<span class='badge bg-danger'>$billing[tgl_kadaluarsa]</span> ";
+            $color = 'danger';
+            $view_status = 'Billing telah kadaluarsa';
+            $aksi = "<a class='action-icon' href='$url' data-bs-toggle='tooltip' data-bs-placement='bottom' title='Tracking'><i class='uil-location-arrow'></i></a>";
+          } else {
+            $tgl_kadaluarsa = "<span class='badge bg-success'>$billing[tgl_kadaluarsa]</span> ";
+            $color = 'warning';
+            $aksi = "<div class='btn-group dropstart' role='group'>
+                        <button id='aksi' type='button' class='btn btn-sm dropdown-toggle' data-bs-toggle='dropdown' aria-expanded='false'>
+                        Pilih
+                        </button>
+                        <ul class='dropdown-menu' aria-labelledby='aksi'>
+                        <li><button class='dropdown-item' data-bs-toggle='modal' data-bs-id='$row[id_tiket]' data-bs-target='#modal-pembayaran'><i class='mdi mdi-ticket-confirmation-outline'></i> Upload Bukti Pembayaran</button></li>
+                  <li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>
+                  </ul>
+                      </div>";
+          }
+        } else {
+          $tgl_kadaluarsa = '';
+          $color = 'warning';
+          $aksi = "<div class='btn-group dropstart' role='group'>
+                        <button id='aksi' type='button' class='btn btn-sm dropdown-toggle' data-bs-toggle='dropdown' aria-expanded='false'>
+                        Pilih
+                        </button>
+                        <ul class='dropdown-menu' aria-labelledby='aksi'>
+                        <li><button class='dropdown-item' data-bs-toggle='modal' data-bs-id='$row[id_tiket]' data-bs-target='#modal-pembayaran'><i class='mdi mdi-ticket-confirmation-outline'></i> Upload Bukti Pembayaran</button></li>
+                  <li><a class='btn dropdown-item' href='$url'><i class='uil-location-arrow'></i> Tracking</a></li>
+                  </ul>
+                      </div>";
+        }
       } else if ($status['status'] == 2) {
         $color = 'danger';
         $aksi = "<div class='btn-group dropstart' role='group'>
@@ -382,7 +477,6 @@ class Tracking extends CI_Controller
         // $aksi = "<a class='action-icon' href='$url'><i class='uil-location-arrow'></i></a>";
         $aksi = "<a class='action-icon' href='$url' data-bs-toggle='tooltip' data-bs-placement='bottom' title='Tracking'><i class='uil-location-arrow'></i></a>";
       }
-      $view_status = $this->status[$status['status']];
       $tgl_status = date('d M Y', strtotime($status['tgl']));
       $array_pengujian = explode(',', $row['pengujian']);
       $pengujian = '';
@@ -453,9 +547,15 @@ class Tracking extends CI_Controller
       }
     }
 
-    $simpan = $this->Ticket_model->saveStatus($data, $file_name);
+    $data_update = [
+      'id_tiket' => $post['id_tiket'],
+      'last_status' => '1',
+    ];
 
-    if ($simpan) {
+    $simpan = $this->Ticket_model->saveStatus($data, $file_name);
+    $update = $this->Ticket_model->updateTiket($data_update);
+
+    if ($simpan && $update) {
       $result = [
         'status' => 200,
         'data' => [
@@ -488,9 +588,15 @@ class Tracking extends CI_Controller
       'keterangan' => $post['keterangan']
     ];
 
-    $simpan = $this->Ticket_model->saveStatus($data, '');
+    $data_update = [
+      'id_tiket' => $post['id_tiket'],
+      'last_status' => '2',
+    ];
 
-    if ($simpan) {
+    $simpan = $this->Ticket_model->saveStatus($data, '');
+    $update = $this->ticket_model->updateTiket($data_update);
+
+    if ($simpan && $update) {
       $result = [
         'status' => 200,
         'data' => [
@@ -523,9 +629,15 @@ class Tracking extends CI_Controller
       'keterangan' => 'Bukti bayar diterima'
     ];
 
-    $simpan = $this->Ticket_model->saveStatus($data, '');
+    $data_update = [
+      'id_tiket' => $post['id_tiket'],
+      'last_status' => '3',
+    ];
 
-    if ($simpan) {
+    $simpan = $this->Ticket_model->saveStatus($data, '');
+    $update = $this->Ticket_model->updateTiket($data_update);
+
+    if ($simpan && $update) {
       $result = [
         'status' => 200,
         'data' => [
@@ -568,6 +680,12 @@ class Tracking extends CI_Controller
   public function surat_tugas()
   {
     $data['page'] = 'Surat Tugas';
+    $url = $this->simpelkan['url'] . 'getPetugasSampling';
+    $petugas = file_get_contents($url);
+
+    $result = json_decode($petugas, true);
+
+    $data['petugas'] = $result['data'];
     $this->_template('tracking/umum/spt', $data);
   }
 
@@ -638,6 +756,22 @@ class Tracking extends CI_Controller
     // echo $admin;
   }
 
+  public function getPetugasSampling()
+  {
+    // ambil dari simpelkan role petugas
+    $url = $this->simpelkan['url'] . 'getPetugasSampling';
+    $admin = file_get_contents($url);
+
+    $data = json_decode($admin, true);
+
+    $result = "<option value='' selected disabled>Pilih salah satu...</option>";
+    foreach ($data['data'] as $row) {
+      $result .= "<option value='$row[id]'>$row[nama]</option>";
+    }
+
+    echo $result;
+  }
+
   public function getAnalis()
   {
     // $data = $this->User_model->getPetugas();
@@ -668,9 +802,9 @@ class Tracking extends CI_Controller
     $data_tiket = [
       'id_tiket' => $post['id_tiket'],
       'tgl_pengujian' => $post['tgl'],
-      'petugas' => $post['petugas'],
+      'admin_lhu' => $post['admin_lhu'],
       'analis' => $post['analis'],
-      'is_read_lhu' => '0',
+      'last_status' => '4',
       'updated_by' => $this->session->userdata('id_user')
     ];
     $simpan = $this->Ticket_model->saveStatus($data, '');
@@ -734,15 +868,17 @@ class Tracking extends CI_Controller
       ];
     }
 
-    // $data_tiket = [
-    //   'id_tiket' => $post['id_tiket'],
-    //   'petugas' => $post['petugas'],
-    // ];
+    $data_tiket = [
+      'id_tiket' => $post['id_tiket'],
+      'petugas' => $post['petugas'],
+      'last_status' => '5',
+      'is_read_petugas' => '0',
+    ];
 
     $simpan = $this->Ticket_model->saveStatus($data, $file_name);
-    // $update = $this->Ticket_model->updateTiket($data_tiket);
+    $update = $this->Ticket_model->updateTiket($data_tiket);
 
-    if ($simpan) {
+    if ($simpan && $update) {
       $result = [
         'status' => 200,
         'data' => [
@@ -778,7 +914,7 @@ class Tracking extends CI_Controller
     $result = '';
     $no = 1;
     foreach ($data as $row) {
-      if ($row['petugas'] == $id_user) {
+      if ($row['admin_lhu'] == $id_user) {
         $status = $this->Ticket_model->getStatusByTicketDesc($row['id_tiket']);
         if ($status['status'] >= '5') {
           $url = base_url('index.php/tracking/detail/') . $row['id_tiket'];
@@ -937,7 +1073,7 @@ class Tracking extends CI_Controller
     $post = $this->input->post();
 
     $data = [
-      'petugas' => $post['petugas'],
+      'admin_lhu' => $post['admin_lhu'],
       'id_tiket' => $post['id_tiket'],
       'analis' => $post['analis'],
     ];
@@ -993,33 +1129,12 @@ class Tracking extends CI_Controller
                     </div>";
         } else {
           $tgl = date('d M Y', strtotime($row['tgl_pengujian']));
-          $user = $this->User_model->getUser($row['petugas']);
           $url_lhu = $this->simpelkan['url'] . 'getUserByID';
-          $idLHU = ['id' => $row['petugas']];
+          $idLHU = ['id' => $row['admin_lhu']];
           $idAnalis = ['id' => $row['analis']];
-          $optionsLHU = array(
-            "http" => array(
-              "method" => "POST",
-              "header" => "Content-Type: application/x-www-form-urlencoded",
-              "content" => http_build_query($idLHU)
-            )
-          );
-          $apiAdmlhu = file_get_contents($url_lhu, false, stream_context_create($optionsLHU));
 
-          $optionsAnalis = array(
-            "http" => array(
-              "method" => "POST",
-              "header" => "Content-Type: application/x-www-form-urlencoded",
-              "content" => http_build_query($idAnalis)
-            )
-          );
-          $apiAnalis = file_get_contents($url_lhu, false, stream_context_create($optionsAnalis));
-
-          // echo $apiAnalis;
-          // exit;
-
-          $user_lhu = json_decode($apiAdmlhu, true);
-          $user_analis = json_decode($apiAnalis, true);
+          $user_lhu = getFromAPI($url_lhu, $idLHU);
+          $user_analis = getFromAPI($url_lhu, $idAnalis);
           $admin_lhu = $user_lhu['data']['nama'];
           $analis = $user_analis['data']['nama'];
           $aksi = "<div class='btn-group' role='group'>

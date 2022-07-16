@@ -34,6 +34,7 @@ class Perusahaan_model extends CI_Model
       'id_user' => $user['id_user'],
       'nama' => $data['nama'],
       'jabatan' => 'Admin Perusahaan',
+      'jenis_perusahaan' => $data['jenis_perusahaan'],
       'alamat' => $data['alamat'],
       'prov' => $data['prov'],
       'kab' => $data['kab'],
@@ -84,6 +85,7 @@ class Perusahaan_model extends CI_Model
     $data = [
       'nama' => $data['nama'],
       'jabatan' => 'Admin Perusahaan',
+      'jenis_perusahaan' => $data['jenis_perusahaan'],
       'alamat' => $data['alamat'],
       'prov' => $data['prov'],
       'kab' => $data['kab'],
@@ -117,5 +119,20 @@ class Perusahaan_model extends CI_Model
     }
 
     return $result;
+  }
+
+  public function findByID($id)
+  {
+    $query = $this->db->select('a.id_user as user_id, b.*, c.nama as provinsi, d.nama as kabupaten, e.nama as kecamatan, f.nama as kelurahan')
+      ->from('tb_users a')
+      ->join('tb_perusahaan b', 'a.id_user=b.id_user')
+      ->join('provinsi c', 'b.prov=c.id_prov', 'left')
+      ->join('kabupaten d', 'b.kab=d.id_kab', 'left')
+      ->join('kecamatan e', 'b.kec=e.id_kec', 'left')
+      ->join('kelurahan f', 'b.kel=f.id_kel', 'left')
+      ->where('a.id_user', $id)
+      ->get()->row_array();
+
+    return $query;
   }
 }

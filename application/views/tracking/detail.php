@@ -245,15 +245,28 @@
                   <h4 class="mt-0 mb-1 font-16"><?= $detail_status[$row['status']] ?></h4>
                   <p class="text-muted"><small><?= 'Waktu input ke sistem, ' . date('d M Y h:i:s A', strtotime($row['date_created'])) ?></small></p>
                   <?php
+
                   if ($row['status'] == '4') {
                     if ($this->session->userdata('level') == 4) {
                       $keterangan = "Estimasi tanggal kegiatan : " . date('d M Y', strtotime($tiket['tgl_pengujian']));
                     } else {
+                      $url = simpelkan() . 'getUserByID';
+                      $lhu_api = [
+                        'id' => $tiket['admin_lhu']
+                      ];
+                      $analis_api = [
+                        'id' => $tiket['analis']
+                      ];
+
+                      $adm_lhu = getFromAPI($url, $lhu_api);
+                      $adm_analis = getFromAPI($url, $analis_api);
+                      $adm_lhu = $adm_lhu['data'];
+                      $adm_analis = $adm_analis['data'];
                       $keterangan = "Estimasi tanggal kegiatan : " . date('d M Y', strtotime($tiket['tgl_pengujian'])) . "
                       <br>
-                      Admin LHU : $tiket[nama]
+                      Admin LHU : $adm_lhu[nama]
                       <br>
-                      Analis : $tiket[analis]
+                      Analis : $adm_analis[nama]
                       ";
                     }
                   } else {

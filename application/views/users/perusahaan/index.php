@@ -65,17 +65,21 @@
         <form class="row g-3 needs-validation" id="form-akun" novalidate>
           <input type="hidden" id="tipe" value="1">
           <input type="hidden" id="id_user" value="">
-          <div class="col-md-4">
+          <div class="col-md-3">
             <label for="nama" class="form-label">Nama Perusahaan</label>
             <input type="text" class="form-control" id="nama" placeholder="Nama Perusahaan" required>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-3">
             <label for="no_telp" class="form-label">No. Telp / Hp</label>
             <input type="text" class="form-control" id="no_telp" placeholder="No. Telp. / Hp." required>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-3">
             <label for="email" class="form-label">E-Mail Perusahaan</label>
             <input type="email" class="form-control" id="email" placeholder="E-Mail Perusahaan" required>
+          </div>
+          <div class="col-md-3">
+            <label for="jenis_perusahaan" class="form-label">Jenis Perusahaan</label>
+            <input type="text" class="form-control" id="jenis_perusahaan" placeholder="Jenis Perusahaan" required>
           </div>
           <div class="col-md-12">
             <label for="alamat" class="form-label">Alamat</label>
@@ -189,6 +193,7 @@
     var nama = $("#nama").val()
     var no_telp = $("#no_telp").val()
     var email = $("#email").val()
+    var jenis_perusahaan = $("#jenis_perusahaan").val()
     var alamat = $("#alamat").val()
     var prov = $("#prov").val()
     var kab = $("#kab").val()
@@ -207,6 +212,7 @@
         nama: nama,
         no_telp: no_telp,
         email: email,
+        jenis_perusahaan: jenis_perusahaan,
         alamat: alamat,
         prov: prov,
         kab: kab,
@@ -279,6 +285,7 @@ Terimakasih`;
         $("#nama").val(data.data.nama)
         $("#no_telp").val(data.data.no_telp)
         $("#email").val(data.data.email)
+        $("#jenis_perusahaan").val(data.data.jenis_perusahaan)
         $("#alamat").val(data.data.alamat)
         $('#prov').select2().val(data.data.prov).trigger('change')
         // console.log($('#prov').val())
@@ -318,6 +325,7 @@ Terimakasih`;
       $("#nama").val("")
       $("#no_telp").val("")
       $("#email").val("")
+      $("#jenis_perusahaan").val("")
       $("#alamat").html("")
       $("#alamat").val("")
       $("#prov").val("").change()

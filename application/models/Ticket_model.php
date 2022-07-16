@@ -31,6 +31,7 @@ class Ticket_model extends CI_Model
       'pengujian' => $post['pengujian'],
       'no_ebilling' => $post['no_ebilling'],
       'file_ebilling' => $file_name,
+      'last_status' => '0',
       'date_created' => $timestamp,
       'date_updated' => $timestamp,
       'created_by' => $id_user,
@@ -55,7 +56,8 @@ class Ticket_model extends CI_Model
             'header' => 'Berhasil...',
             'body' => 'E-Billing berhasil di kirim!',
             'status' => 'success'
-          ]
+          ],
+          'id_tiket' => $tiket['id_tiket']
         ];
       } else {
         $result = [

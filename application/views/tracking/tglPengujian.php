@@ -81,8 +81,8 @@
             <input type="date" class="form-control" id="tgl" required>
           </div>
           <div class="col-md-12">
-            <label for="petugas" class="form-label">Admin LHU</label>
-            <select id="petugas" class="form-control select2" required>
+            <label for="admin_lhu" class="form-label">Admin LHU</label>
+            <select id="admin_lhu" class="form-control select2" required>
               <option value="" selected disabled>Pilih salah satu</option>
             </select>
           </div>
@@ -113,8 +113,8 @@
       <div class="modal-body">
         <form class="row g-3 needs-validation" id="form-ubah-admin" novalidate>
           <div class="col-md-12">
-            <label for="petugas-ubah" class="form-label">Admin LHU</label>
-            <select id="petugas-ubah" class="form-control select2 petugas-ubah" required>
+            <label for="admin_lhu-ubah" class="form-label">Admin LHU</label>
+            <select id="admin_lhu-ubah" class="form-control select2 admin_lhu-ubah" required>
               <option value="" selected disabled>Pilih salah satu</option>
             </select>
           </div>
@@ -158,8 +158,8 @@
       dataType: "HTML",
       url: url,
       success: function(data) {
-        $('.petugas-ubah').html(data);
-        $('#petugas').html(data);
+        $('.admin_lhu-ubah').html(data);
+        $('#admin_lhu').html(data);
       }
     })
   }
@@ -187,7 +187,7 @@
       url: url,
       success: function(data) {
         $("#id_tiket").val(data.id_tiket);
-        $("#petugas-ubah").val(data.petugas).change();
+        $("#admin_lhu-ubah").val(data.admin_lhu).change();
         $("#analis-ubah").val(data.analis).change();
       }
     })
@@ -201,7 +201,7 @@
       url: url,
       data: {
         'id_tiket': $("#id_tiket").val(),
-        'petugas': $(".petugas-ubah").val(),
+        'admin_lhu': $(".admin_lhu-ubah").val(),
         'analis': $("#analis-ubah").val()
       },
       success: function(data) {
@@ -224,11 +224,19 @@
 
   tampil()
 
-  $('.select2').select2({
+  $('#admin_lhu').select2({
     dropdownParent: $('#modal-tgl')
   })
 
-  $('.select2').select2({
+  $('#analis').select2({
+    dropdownParent: $('#modal-tgl')
+  })
+
+  $('#admin_lhu-ubah').select2({
+    dropdownParent: $('#modal-edit-admin')
+  })
+
+  $('#analis-ubah').select2({
     dropdownParent: $('#modal-edit-admin')
   })
 
@@ -236,7 +244,7 @@
     var url = "<?= base_url('index.php/tracking/saveTglRencana') ?>";
     var id_tiket = $("#id_tiket").val()
     var tgl = $("#tgl").val()
-    var petugas = $("#petugas").val()
+    var admin_lhu = $("#admin_lhu").val()
     var analis = $("#analis").val()
     var ket = label[status]
 
@@ -247,7 +255,7 @@
       data: {
         id_tiket: id_tiket,
         tgl: tgl,
-        petugas: petugas,
+        admin_lhu: admin_lhu,
         analis: analis,
         ket: ket,
       },
@@ -285,7 +293,7 @@
     $("#modal-tglLabel").html(label[status])
     $('#id_tiket').val(id);
     $('#status').val(status);
-    $('#petugas').val("").change()
+    $('#admin_lhu').val("").change()
     $('#tgl').val("")
   });
 
